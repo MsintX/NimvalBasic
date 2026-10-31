@@ -1,0 +1,2 @@
+/* Native input statement definition. The parser/runtime implementation is built into Nimple Basic. */
+statement sys::read

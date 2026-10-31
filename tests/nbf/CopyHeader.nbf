@@ -1,0 +1,3 @@
+int copiedValue:
+    return 7
+end

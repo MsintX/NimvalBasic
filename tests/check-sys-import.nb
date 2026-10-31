@@ -1,0 +1,6 @@
+statement "output"
+const namespace sys
+int Main:
+    sys::print "Nimple Basic" -> System
+    return 0
+end

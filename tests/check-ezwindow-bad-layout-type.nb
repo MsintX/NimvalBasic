@@ -1,0 +1,11 @@
+statement "EzWindow"
+
+var new root = window("Bad Layout Type", 800, 500)
+var new action = button(root, "Run")
+
+/* The API requires integer coordinates and percentage values. */
+setRelativeBounds(action, "bad", 10, 80, 20)
+
+int Main:
+    return 0
+end

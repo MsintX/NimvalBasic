@@ -1,0 +1,35 @@
+Nimple Basic Release build validation
+====================================
+
+Build configuration: clean CMake Release, GNU C++ 14.2.0, Linux x86_64
+Build command: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
+Build result: SUCCESS
+Test command: ctest --test-dir build --output-on-failure
+Test result: 76/76 passed
+
+EzWindow declarative checks:
+- const <EzWindow>, // comments, void Window entry, defaults, optional title/icon/geometry: passed
+- Required window instance and EzWindow-owned missing-instance diagnostic: passed
+- Native control generation for Label, Button, Entry, TextBox, CheckBox, PasswordEntry, ComboBox, RadioButton, Slider, ProgressBar: passed
+- Suffixed identifiers such as Button1 and LabelStatus: passed
+- Control-body statements are retained after explicit native control construction: passed
+- Controls declared after `void Window` are included in the generated window body: passed (regression test)
+- Controls without an explicit first-line EzWindow instance do not create widgets: passed
+- const <Module> standard-library import and const "relative path" import: passed
+- loction(distance, top, bottom, left, right) with %/px units and size(px, length, width) transformation: passed
+- Style path suffix .css acceptance and invalid-extension diagnostic: passed
+- .css file contents and native visual style rendering: not implemented; the style property grammar has not yet been specified
+
+General checks:
+- Structured diagnostic framework regression tests: passed
+- Empty source execution and static check: passed
+- Comment-only source static check: passed
+- Existing standard library, language, and legacy EzWindow tests: passed
+
+Platform scope:
+- Linux x86_64 Release executable built and included at bin/nimple-basic.
+- Standard library copied beside the executable.
+- Visual Studio 2015 project files are included, but Windows/MSVC was not built in this Linux environment.
+- Xvfb runtime smoke test: declarative example opened a 640x480 X11 window and remained running without errors; visual inspection of rendered widget contents was not performed.
+
+EzWindow update: loction(distance, top, bottom, left, right) with %/px units; size(px, length, width); Win32 and GTK PasswordEntry mask set to *. Regression tests: 76/76 passed.

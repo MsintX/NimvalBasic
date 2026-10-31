@@ -1,0 +1,5 @@
+statement "input"
+int Main:
+    var new age = sys::read(int) as int
+    return age
+end

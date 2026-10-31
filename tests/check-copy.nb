@@ -1,0 +1,6 @@
+const namespace sys
+copy "Math"
+
+int Main:
+    return maxInt(9, 3) - 9
+end

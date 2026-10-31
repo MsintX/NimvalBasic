@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>14.0</VCProjectVersion>
+    <ProjectGuid>{D9B10744-02EA-4222-AB6D-E6EF9A3F4A1D}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>NimpleBasic</RootNamespace>
+    <ProjectName>NimpleBasic</ProjectName>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup>
+    <OutDir>$(ProjectDir)bin\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>nb</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(WebView2SDKDir)' != ''">
+    <NimpleEnableWebView2>true</NimpleEnableWebView2>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(NimpleEnableWebView2)' == 'true' and '$(ConfigurationType)' != 'Utility'">
+    <ClCompile>
+      <PreprocessorDefinitions>NIMPLE_ENABLE_WEBVIEW2=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(WebView2SDKDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories Condition="'$(Platform)' == 'x64'">$(WebView2SDKDir)x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories Condition="'$(Platform)' == 'Win32'">$(WebView2SDKDir)x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories Condition="'$(Platform)' == 'ARM64'">$(WebView2SDKDir)arm64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>WebView2LoaderStatic.lib;ole32.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CONSOLE;_UNICODE;UNICODE;WINVER=0x0601;_WIN32_WINNT=0x0601;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CONSOLE;_UNICODE;UNICODE;WINVER=0x0601;_WIN32_WINNT=0x0601;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="NimpleBasic.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Compat14.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Standard library\EzWindow" />
+    <None Include="Standard library\Math" />
+    <None Include="Standard library\input" />
+    <None Include="Standard library\output" />
+    <None Include="Standard library\iosystem" />
+    <None Include="Standard library\README.md" />
+    <None Include="CMakeLists.txt" />
+    <None Include="EzWindowLinux.cpp" />
+    <None Include="EzWindowMac.mm" />
+    <None Include="README.md" />
+    <None Include="examples\EzWindowHello.nb" />
+    <None Include="examples\EzWindowRelativeLayout.nb" />
+    <None Include="examples\EzWindowExtendedControls.nb" />
+    <None Include="examples\EzWindowWebView2.nb" />
+    <None Include="tests\check-ezwindow-bad-callback.nb" />
+    <None Include="tests\check-ezwindow-relative-layout.nb" />
+    <None Include="tests\check-ezwindow-extended-controls.nb" />
+    <None Include="tests\check-ezwindow-bad-layout-type.nb" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Target Name="CopyNimpleStandardLibrary" AfterTargets="Build">
+    <ItemGroup>
+      <NimpleStandardLibraryFiles Include="$(ProjectDir)Standard library\**\*" />
+    </ItemGroup>
+    <MakeDir Directories="$(OutDir)Standard library" />
+    <Copy SourceFiles="@(NimpleStandardLibraryFiles)" DestinationFiles="@(NimpleStandardLibraryFiles->'$(OutDir)Standard library\%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+  </Target>
+  <ImportGroup Label="ExtensionTargets" />
+</Project>

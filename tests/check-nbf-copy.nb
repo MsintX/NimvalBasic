@@ -1,0 +1,4 @@
+statement "nbf/CopyHeader.nbf"
+int Main:
+    return copiedValue() - 7
+end

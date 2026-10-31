@@ -1,0 +1,6 @@
+statement "EzWindow"
+void Window:
+    var new root = window("Icon test", 640, 480, "assets/app.ico")
+    mainloop()
+    return
+end

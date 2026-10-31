@@ -1,0 +1,4 @@
+int Main:
+    var new value as int
+    return value
+end

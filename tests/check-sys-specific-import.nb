@@ -1,0 +1,6 @@
+statement "output"
+const sys::print
+int Main:
+    sys::print "ok" -> System
+    return 0
+end

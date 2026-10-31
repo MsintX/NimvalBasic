@@ -1,0 +1,3 @@
+void Window:
+    return
+end

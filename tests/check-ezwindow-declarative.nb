@@ -1,0 +1,11 @@
+const <EzWindow>
+void Window :
+    var new (auto)App = EzWindow.Window
+    App.Geometry("300x300")
+    App.Title = "Test"
+end
+module Controls :
+    void Button :
+        loction(%, 10, 20, 30, 40)
+    end
+end

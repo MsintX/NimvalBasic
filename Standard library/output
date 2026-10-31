@@ -1,0 +1,4 @@
+/* Native output statement definitions. The parser/runtime implementations are built into Nimple Basic. */
+statement sys::print
+statement sys::printf
+statement sys::printfn

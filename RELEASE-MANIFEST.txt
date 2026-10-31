@@ -1,0 +1,49 @@
+Nimple Basic 0.1.0 Release package (updated build)
+
+Contents:
+- Complete C++14 interpreter source and platform backends
+- Visual Studio 2015 solution/project files
+- CMake build configuration
+- Standard library modules, including sys-qualified input/output/iosystem native statement definitions
+- Examples, documentation, tests, license
+- Linux x86_64 Release executable at bin/nb
+
+Validation performed in Linux x86_64 with GNU C++ 14.2.0:
+- Clean CMake Release build: passed
+- CTest: 76/76 passed; REPL smoke tests passed
+- Empty-file execution and static-check smoke tests: passed
+- Qualified output without `statement "output"` is rejected with the generic diagnostic `print 未定义。`; output module imports remain valid: passed
+- Comment-only file static-check test: passed
+- EzWindow declarative example static check: passed
+- Missing declarative window instance produces the EzWindow-specific static diagnostic: passed
+- Declarative control type generation and suffixed control identifiers: passed
+- Controls declared after `void Window` are included in generated runtime code: passed (regression test)
+- `.css` suffix acceptance/rejection diagnostics: passed
+- `.css` visual property grammar/application: not implemented; the format has not been specified
+
+The Windows Visual Studio project is included, but this archive does not contain a
+Windows executable: MSVC/Windows builds were not available in the build environment.
+Xvfb runtime smoke test confirmed the declarative example opens a 640x480 X11 window and remains running without errors; rendered widget contents were not visually inspected.
+
+EzWindow declarative syntax update:
+- const <EzWindow> import
+- // line comments with existing block comments retained
+- void Window declarative entry, defaults and optional properties
+- module Controls with explicit EzWindow.ControlType instances and loction edge-relative layout
+- Style resource extension validation (`.css`)
+- 76/76 clean Release CTest checks passed on Linux x86_64
+
+EzWindow declarative controls: controls are generated only from explicit `var new (auto)Name = EzWindow.ControlType` declarations; `.css` suffix is validated. CSS parsing and native visual application are not implemented and are not claimed as implemented.
+
+
+EzWindow layout and password-mask update (2026-10-31):
+- `loction(distance, top, bottom, left, right)` accepts `%` or `px` as the shared distance unit.
+- `size(px, length, width)` sets explicit pixel dimensions; first value is horizontal width, second is vertical height.
+- Without `size`, the remaining space between opposing edges determines the control size.
+- Explicit zero/negative-after-rounding dimensions and fully consumed percentage dimensions are rejected with NB-EZ1002.
+- Win32 EDIT password controls explicitly use `*` via EM_SETPASSWORDCHAR.
+- GTK PasswordEntry uses `*` as its invisible character.
+- Added regression coverage for percent/pixel locations, explicit dimensions and zero-size rejection.
+- Linux x86_64 Release build and CTest: 76/76 passed; REPL smoke tests passed.
+- Linux Xvfb runtime smoke test: declarative window remained running without runtime diagnostics; visual screenshot inspection was unavailable in this environment.
+- macOS native secure-field mask was not modified or validated; the macOS backend may retain its platform-native mask character.

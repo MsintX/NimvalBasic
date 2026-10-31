@@ -1,0 +1,5 @@
+const sys::pause
+int Main:
+    pause
+    return 0
+end

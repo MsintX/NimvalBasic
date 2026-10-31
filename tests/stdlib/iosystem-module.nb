@@ -1,0 +1,8 @@
+statement "iosystem"
+int Main:
+    var new value = sys::read(int) as int
+    sys::print "value" -> System
+    sys::printf "value={%d}" value -> System
+    sys::printfn "done" -> System
+    return value
+end

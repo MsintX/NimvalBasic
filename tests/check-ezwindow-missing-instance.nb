@@ -1,0 +1,4 @@
+const <EzWindow>
+void Window :
+    Window.Title = "Missing instance"
+end

@@ -1,0 +1,4 @@
+int Main:
+    sys::print "must fail without statement output" -> System
+    return 0
+end

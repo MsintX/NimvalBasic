@@ -1,0 +1,5 @@
+statement "EzWindow"
+
+int Main:
+    return 0
+end

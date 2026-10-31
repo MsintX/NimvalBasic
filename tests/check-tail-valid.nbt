@@ -1,0 +1,5 @@
+title = "Nimple Basic sample"
+width = 720
+height = 480
+icon = "assets/app.ico"
+prompt = "A tiny project note"

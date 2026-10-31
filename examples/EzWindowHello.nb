@@ -1,0 +1,23 @@
+statement "EzWindow"
+
+window "Hello from Nimple" 520 320 as app
+label app "Your name:" as prompt
+entry app "Type your name" as name
+button app "Say hello" as greetButton
+label app "Ready." as result
+
+void greet:
+    setText(result, "Hello, " + getText(name) + "!")
+    return
+end
+
+int Main:
+    pack(prompt)
+    pack(name)
+    pack(greetButton)
+    pack(result)
+    on greetButton click greet
+    show app
+    run
+    return 0
+end

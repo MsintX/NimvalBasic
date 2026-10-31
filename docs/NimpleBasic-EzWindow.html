@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Nimple Basic with EzWindow 文档：使用 Nimple Basic 编写跨平台原生桌面 GUI。">
+<title>Nimple Basic with EzWindow 文档</title><style>
+:root{color-scheme:light dark;--bg:#f7f8fb;--panel:#fff;--ink:#1d2433;--muted:#596579;--line:#dce2eb;--accent:#315efb;--code:#111827;--codeink:#e5edf8;--soft:#edf2ff}
+@media(prefers-color-scheme:dark){:root{--bg:#10141c;--panel:#181e29;--ink:#edf2fa;--muted:#a8b3c6;--line:#30394a;--accent:#8ba4ff;--code:#090c12;--codeink:#e5edf8;--soft:#202a43}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{padding:54px 22px 42px;background:linear-gradient(135deg,#172554,#315efb 70%,#6d8dff);color:white}
+header .wrap,main,.footer{max-width:1040px;margin:auto}header .eyebrow{text-transform:uppercase;letter-spacing:.13em;font-size:.78rem;opacity:.8;font-weight:700}
+h1{font-size:clamp(2.3rem,6vw,4rem);line-height:1.08;margin:.45rem 0 1rem;letter-spacing:-.04em}header p{font-size:1.1rem;max-width:760px;color:#e8edff;margin:0}
+main{padding:26px 22px 70px}.layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:28px;align-items:start}
+nav{position:sticky;top:18px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+nav strong{display:block;margin:0 0 8px}nav a{display:block;color:var(--muted);text-decoration:none;padding:5px 0;font-size:.92rem}nav a:hover{color:var(--accent)}
+article{min-width:0}.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;margin:0 0 20px;box-shadow:0 5px 20px #00000008}
+h2{font-size:1.65rem;line-height:1.25;letter-spacing:-.025em;margin:0 0 12px}h3{font-size:1.13rem;margin:22px 0 8px}p{margin:.6rem 0 1rem}ul,ol{padding-left:1.4rem}li{margin:.3rem 0}
+code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.92em;background:var(--soft);padding:.13em .35em;border-radius:5px}
+pre{overflow:auto;background:var(--code);color:var(--codeink);padding:18px;border-radius:12px;line-height:1.55;font-size:.9rem;border:1px solid #ffffff12}pre code{background:none;padding:0;color:inherit}
+.note{border-left:4px solid var(--accent);padding:12px 15px;background:var(--soft);border-radius:0 9px 9px 0;margin:14px 0}
+table{width:100%;border-collapse:collapse;margin:12px 0}th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}th{font-size:.9rem;color:var(--muted)}
+.pill{display:inline-block;border:1px solid #ffffff66;border-radius:999px;padding:4px 10px;font-size:.8rem;margin:16px 8px 0 0}
+a{color:var(--accent)}.footer{padding:0 22px 36px;color:var(--muted);font-size:.88rem}
+@media(max-width:760px){.layout{grid-template-columns:1fr}nav{position:static}header{padding-top:38px}.card{padding:19px}table{display:block;overflow-x:auto}}
+</style></head>
+<body>
+<header><div class="wrap"><div class="eyebrow">Nimple Basic Native Runtime · EzWindow</div><h1>Nimple Basic with EzWindow</h1><p>使用 Nimple Basic 编写桌面窗口、按钮、文本输入、密码框、下拉框、单选按钮、滑块、进度条；Windows 可选嵌入 WebView2。EzWindow 提供统一 API，并调用各平台的原生 GUI 后端。</p><span class="pill">原生桌面控件</span><span class="pill">事件回调</span><span class="pill">标准库与 EXE 同级</span></div></header>
+<main><div class="layout">
+<nav><strong>目录</strong><a href="#start">第一个窗口</a><a href="#model">工作方式</a><a href="#widgets">控件 API</a><a href="#layout-positioning">位置、尺寸与相对布局</a><a href="#events">事件与回调</a><a href="#example">完整示例</a><a href="#run">运行与构建</a><a href="#platforms">平台后端</a><a href="#troubleshoot">常见问题</a><a href="#api">API 速查</a></nav>
+<article>
+<section class="card" id="start"><h2>第一个窗口</h2><p>EzWindow 程序使用无参数的 <code>void Window</code> 作为入口；窗口标题默认是 <code>EzWindow Application</code>，默认大小为 200×200，也可以显式指定标题和尺寸。保存为 <code>HelloWindow.nb</code>。<code>statement "EzWindow"</code> 必须位于程序语句之前。</p>
+<pre><code class="language-nb">statement "EzWindow"
+
+var new root = window("我的第一个 Nimple Basic 窗口", 520, 320)
+var new greeting = label(root, "你好，Nimple Basic！")
+var new nameInput = entry(root, "请输入姓名")
+var new greetButton = button(root, "打招呼")
+
+void greet:
+    setText(greeting, "你好，" + getText(nameInput) + "！")
+    return
+end
+
+void Window:
+    pack(greeting)
+    pack(nameInput)
+    pack(greetButton)
+    onClick(greetButton, "greet")
+    mainloop()
+    return
+end</code></pre>
+<p>运行：</p><pre><code>nimple-basic HelloWindow.nb</code></pre>
+<div class="note"><code>Window</code> 必须无参数且返回 <code>void</code>；不需要再定义 <code>Main</code>。控件创建时会自动加入窗口默认布局；<code>pack(widget)</code> 保留为兼容接口，不改变布局。需要指定位置和尺寸时使用 <code>setBounds</code> 或 <code>setRelativeBounds</code>；用 <code>onClick</code> 注册按钮回调，最后调用 <code>mainloop()</code> 进入 GUI 事件循环。</div></section>
+<section class="card" id="model"><h2>EzWindow 的工作方式</h2><ul><li><strong>Nimple Basic 层：</strong><code>statement "EzWindow"</code> 从解释器同级的 <code>Standard library/EzWindow</code> 导入 Nimple Basic API 声明。</li><li><strong>原生后端：</strong>调用 Windows、macOS 或 Linux 对应 GUI 接口创建真实桌面控件。</li><li><strong>事件驱动：</strong>用户点击按钮、修改输入框或切换复选框时，EzWindow 调用已注册的 Nimple Basic 方法。</li></ul><p>标准库模块（包括 EzWindow API 声明和 Math）以无扩展名文件放在解释器同级的 <code>Standard library</code> 文件夹中。运行时根据解释器自身路径定位，不受当前工作目录影响。</p></section>
+<section class="card" id="widgets"><h2>控件 API</h2><table><thead><tr><th>方法</th><th>用途</th><th>示例</th></tr></thead><tbody>
+<tr><td><code>window(title, width, height)</code></td><td>创建窗口，标题和尺寸可省略，默认 200×200；第 4 个参数可选指定图标路径</td><td><code>window()</code> 或 <code>window("App", 520, 340)</code> 或 <code>window("App", 520, 340, "icon.ico")</code></td></tr>
+<tr><td><code>label(windowId, text)</code></td><td>创建标签</td><td><code>label(root, "Ready")</code></td></tr>
+<tr><td><code>button(windowId, text)</code></td><td>创建按钮</td><td><code>button(root, "Save")</code></td></tr>
+<tr><td><code>entry(windowId, placeholder)</code></td><td>创建单行输入框</td><td><code>entry(root, "Name")</code></td></tr>
+<tr><td><code>textBox(windowId, initialText)</code></td><td>创建多行文本框</td><td><code>textBox(root, "Notes")</code></td></tr>
+<tr><td><code>checkBox(windowId, text)</code></td><td>创建复选框</td><td><code>checkBox(root, "Enable")</code></td></tr>
+<tr><td><code>passwordEntry(windowId, placeholder)</code></td><td>创建密码输入框，字符隐藏</td><td><code>passwordEntry(root, "Password")</code></td></tr>
+<tr><td><code>comboBox(windowId, items)</code></td><td>创建下拉选择；选项用换行符分隔</td><td><code>comboBox(root, "Small\nMedium\nLarge")</code></td></tr>
+<tr><td><code>radioButton(windowId, text)</code></td><td>创建单选按钮；同一窗口内形成一组</td><td><code>radioButton(root, "Use system mode")</code></td></tr>
+<tr><td><code>slider(windowId, minimum, maximum)</code></td><td>创建整数滑块</td><td><code>slider(root, 0, 100)</code></td></tr>
+<tr><td><code>progressBar(windowId, minimum, maximum)</code></td><td>创建进度条</td><td><code>progressBar(root, 0, 100)</code></td></tr>
+<tr><td><code>webView(windowId, url)</code></td><td>创建 WebView2 浏览区域（仅启用 SDK 的 Windows 构建）</td><td><code>webView(root, "https://example.com")</code></td></tr>
+<tr><td><code>webViewNavigate(widgetId, url)</code></td><td>在 WebView2 中导航</td><td><code>webViewNavigate(browser, "https://example.com")</code></td></tr>
+<tr><td><code>webViewSetHtml(widgetId, html)</code></td><td>将 HTML 字符串加载到 WebView2</td><td><code>webViewSetHtml(browser, "&lt;h1&gt;Hello&lt;/h1&gt;")</code></td></tr>
+<tr><td><code>setValue(widgetId, value)</code> / <code>getValue(widgetId)</code></td><td>设置或读取滑块/进度条的整数值</td><td><code>setValue(progress, getValue(volume))</code></td></tr>
+<tr><td><code>pack(widgetId)</code></td><td>兼容接口；当前不改变布局</td><td><code>pack(saveButton)</code></td></tr>
+<tr><td><code>setText(widgetId, text)</code> / <code>getText(widgetId)</code></td><td>设置或读取文本</td><td><code>setText(status, "Saved")</code></td></tr>
+<tr><td><code>setChecked(widgetId, bool)</code> / <code>getChecked(widgetId)</code></td><td>设置或读取复选框状态</td><td><code>getChecked(option)</code></td></tr>
+<tr><td><code>setTitle(windowId, title)</code></td><td>修改窗口标题</td><td><code>setTitle(root, "Settings")</code></td></tr>
+<tr><td><code>show(windowId)</code></td><td>显示窗口</td><td><code>show(root)</code></td></tr>
+<tr><td><code>messageBox(title, text)</code></td><td>显示消息框</td><td><code>messageBox("Info", "Complete")</code></td></tr>
+<tr><td><code>quit()</code></td><td>请求退出事件循环</td><td><code>quit()</code></td></tr>
+<tr><td><code>mainloop()</code></td><td>进入事件循环</td><td><code>mainloop()</code></td></tr></tbody></table>
+<p>控件创建函数返回整数 ID；将该 ID 保存到变量中，后续即可读取状态、修改文本或绑定事件。</p></section>
+<section class="card" id="layout-positioning"><h2>位置、尺寸与自动相对布局</h2>
+<p>EzWindow 现在提供固定像素布局和响应式百分比布局。坐标原点是窗口客户区左上角，不是整个屏幕左上角。控件在创建时默认按创建顺序纵向排列；调用以下布局 API 后，该控件切换为自定义布局。</p>
+<h3>1. 固定像素位置：setPosition</h3>
+<p><code>setPosition(widgetId, x, y)</code> 设置控件左上角相对于窗口客户区的像素坐标。该控件切换为固定像素布局，窗口大小变化时位置不会按比例重新计算。</p>
+<pre><code class="language-nb">statement "EzWindow"
+
+var new root = window("Position example", 640, 400)
+var new status = label(root, "Positioned at x=24, y=20")
+
+setPosition(status, 24, 20)
+
+void Window:
+    mainloop()
+    return
+end</code></pre>
+<h3>2. 固定像素尺寸：setSize</h3>
+<p><code>setSize(widgetId, width, height)</code> 设置控件宽度和高度，单位为像素。宽和高必须大于 0。该方法同样将控件切换到固定像素布局，并保留当前的位置。</p>
+<pre><code class="language-nb">statement "EzWindow"
+
+var new root = window("Size example", 640, 400)
+var new action = button(root, "Submit")
+
+setSize(action, 160, 40)
+
+void Window:
+    mainloop()
+    return
+end</code></pre>
+<h3>3. 一次指定位置与尺寸：setBounds</h3>
+<p><code>setBounds(widgetId, x, y, width, height)</code> 是 setPosition 和 setSize 的组合，用于一次设置控件的完整像素矩形。</p>
+<pre><code class="language-nb">statement "EzWindow"
+
+var new root = window("Bounds example", 640, 400)
+var new action = button(root, "Run")
+
+setBounds(action, 28, 24, 180, 42)
+
+void Window:
+    mainloop()
+    return
+end</code></pre>
+<h3>4. 自动相对定位：setRelativeBounds</h3>
+<p><code>setRelativeBounds(widgetId, xPercent, yPercent, widthPercent, heightPercent)</code> 使用窗口客户区的百分比来确定控件位置和大小。窗口调整尺寸时，EzWindow 会重新计算该控件的像素矩形。</p>
+<table><thead><tr><th>参数</th><th>含义</th><th>示例</th></tr></thead><tbody>
+<tr><td><code>xPercent</code></td><td>左侧位置占客户区宽度的百分比</td><td><code>5</code> 表示从左侧 5% 开始</td></tr>
+<tr><td><code>yPercent</code></td><td>顶部位置占客户区高度的百分比</td><td><code>20</code> 表示从顶部 20% 开始</td></tr>
+<tr><td><code>widthPercent</code></td><td>控件宽度占客户区宽度的百分比</td><td><code>60</code> 表示占 60% 宽度</td></tr>
+<tr><td><code>heightPercent</code></td><td>控件高度占客户区高度的百分比</td><td><code>10</code> 表示占 10% 高度</td></tr>
+</tbody></table>
+<p>每个百分比参数都是 0 到 100 的整数。宽、高百分比必须大于 0，并且位置加尺寸不能超出客户区：<code>xPercent + widthPercent &lt;= 100</code>，<code>yPercent + heightPercent &lt;= 100</code>。</p>
+<pre><code class="language-nb">statement "EzWindow"
+
+var new root = window("Responsive layout", 900, 600)
+var new title = label(root, "Responsive interface")
+var new nameInput = entry(root, "Your name")
+var new submit = button(root, "Submit")
+var new notes = textBox(root, "The text area grows with the window.")
+
+setRelativeBounds(title, 5, 5, 90, 8)
+setRelativeBounds(nameInput, 5, 18, 65, 10)
+setRelativeBounds(submit, 73, 18, 22, 10)
+setRelativeBounds(notes, 5, 34, 90, 50)
+
+void Window:
+    mainloop()
+    return
+end</code></pre>
+<h3>5. 四种布局 API 的差异</h3>
+<table><thead><tr><th>方法</th><th>单位</th><th>窗口缩放时</th><th>适用场景</th></tr></thead><tbody>
+<tr><td><code>setPosition</code></td><td>像素</td><td>位置不按比例变化</td><td>固定位置控件</td></tr>
+<tr><td><code>setSize</code></td><td>像素</td><td>尺寸不按比例变化</td><td>固定大小按钮或输入框</td></tr>
+<tr><td><code>setBounds</code></td><td>像素</td><td>矩形不按比例变化</td><td>明确像素布局</td></tr>
+<tr><td><code>setRelativeBounds</code></td><td>百分比</td><td>位置和尺寸都自动重算</td><td>响应式窗口界面</td></tr>
+</tbody></table>
+<div class="note">控制尺寸时，平台原生控件可能有自己的最小自然尺寸；不同系统的字体度量、边框和系统主题也可能造成少量差异。相对百分比依据窗口客户区计算，不包括标题栏和窗口边框。</div>
+<h3>6. 混合使用</h3>
+<p>同一窗口中的控件可以混用固定像素与相对布局。调用 <code>setRelativeBounds</code> 会切换为相对布局；随后调用 <code>setPosition</code>、<code>setSize</code> 或 <code>setBounds</code> 则重新切换为固定像素布局。默认自动纵向布局只会继续管理尚未自定义布局的控件。</p>
+</section>
+<section class="card" id="events"><h2>事件与回调</h2><h3>按钮点击</h3><p>回调名称以字符串传入，目标必须是已声明的 Nimple Basic 方法。点击事件回调不接收参数。</p><pre><code class="language-nb">void save:
+    messageBox("Saved", "Your changes were saved.")
+    return
+end
+
+void Window:
+    var new saveButton = button(root, "Save")
+    pack(saveButton)
+    onClick(saveButton, "save")
+    mainloop()
+    return
+end</code></pre>
+<h3>输入变化</h3><p><code>onChange</code> 支持单行输入框、多行文本框、密码输入框、复选框、单选按钮、下拉框和滑块。回调需要一个参数，变化值统一以字符串传入；滑块变化值为整数的十进制文本。</p><pre><code class="language-nb">void inputChanged with currentText as string:
+    setText(statusLabel, "输入：" + currentText)
+    return
+end
+
+void Window:
+    onChange(nameInput, "inputChanged")
+    mainloop()
+    return
+end</code></pre>
+<div class="note">回调方法必须在静态检查可见的范围内声明。绑定时使用方法名字符串，例如 <code>onClick(buttonId, "greet")</code>，不要写成 <code>onClick(buttonId, greet)</code>。</div></section>
+<section class="card" id="example"><h2>完整示例：问候应用</h2><pre><code class="language-nb">statement "EzWindow"
+
+/* Root widgets are globals so event methods can access them. */
+var new root = window("Nimple Basic + EzWindow", 520, 340)
+var new greeting = label(root, "请输入姓名，然后点击按钮。")
+var new nameInput = entry(root, "你的姓名")
+var new greetButton = button(root, "打招呼")
+var new notes = textBox(root, "EzWindow 使用系统原生控件。")
+var new friendly = checkBox(root, "启用友好模式")
+
+void greet:
+    if getText(nameInput) == "" then
+        setText(greeting, "请先输入姓名。")
+    else
+        if getChecked(friendly) then
+            setText(greeting, "你好，" + getText(nameInput) + "！祝你今天愉快。")
+        else
+            setText(greeting, "你好，" + getText(nameInput) + "！")
+        end
+    end
+    return
+end
+
+void Window:
+    pack(greeting)
+    pack(nameInput)
+    pack(greetButton)
+    pack(notes)
+    pack(friendly)
+    onClick(greetButton, "greet")
+    mainloop()
+    return
+end</code></pre><p>建议将完整示例与项目中的 <code>examples/EzWindowHello.nb</code> 对照使用。</p></section>
+<section class="card" id="run"><h2>运行与构建</h2><h3>先检查，再运行</h3><pre><code>nimple-basic --check HelloWindow.nb
+nimple-basic HelloWindow.nb</code></pre><h3>构建解释器</h3><pre><code>cmake -S . -B build
+cmake --build build --config Release</code></pre><p>Windows 用户也可以在 Visual Studio 中打开 <code>NimpleBasic.sln</code> 并构建。请确保运行的是刚刚重新编译的 <code>nimple-basic.exe</code>；仅更新源码不会改变旧 EXE 的行为。</p>
+<h3>启用可选的 WebView2（Windows）</h3><p>安装 Microsoft WebView2 SDK，将 <code>WEBVIEW2_SDK_DIR</code> 指向 SDK 包的 <code>build/native</code> 目录，再运行：</p><pre><code>cmake -S . -B build -DNIMPLE_ENABLE_WEBVIEW2=ON -DWEBVIEW2_SDK_DIR="C:/path/to/Microsoft.Web.WebView2/build/native"
+cmake --build build --config Release</code></pre><p>Visual Studio 项目可将 <code>WebView2SDKDir</code> 属性设置到同一目录。目标用户还必须安装 WebView2 Runtime。</p></section>
+<section class="card" id="platforms"><h2>平台与原生后端</h2><table><thead><tr><th>平台</th><th>后端方式</th><th>依赖与说明</th></tr></thead><tbody>
+<tr><td>Windows</td><td>Win32 原生控件；可选 WebView2</td><td>通用控件无需第三方 GUI 框架；WebView2 需单独安装 SDK 并启用编译开关，运行时需安装 WebView2 Runtime。Windows 8.1 不受 WebView2 Runtime 支持。</td></tr>
+<tr><td>macOS</td><td>Cocoa / AppKit</td><td>使用系统提供的窗口和控件；需在 macOS 上使用 Apple Clang 构建与验证。</td></tr>
+<tr><td>Linux</td><td>运行时动态加载 GTK 3</td><td>无需 GTK 头文件或链接期开发依赖；运行 GUI 程序的桌面系统需要 GTK 3 运行库与可用的图形会话。</td></tr></tbody></table>
+<div class="note">Linux 没有统一的操作系统级原生按钮/文本框 API，因此当前 Linux 后端使用桌面环境常见的 GTK 3 运行库。通用控件在各平台映射到平台原生控件；WebView2 仅在 Windows 且显式启用时可用。Windows 8.1 不支持 WebView2 Runtime。各目标系统仍应进行实际 GUI 冒烟测试。</div></section>
+<section class="card" id="troubleshoot"><h2>常见问题</h2><h3>报错“EzWindow 当前未启用”</h3><p>通常表示运行的 EXE 没有包含对应的 GUI 后端，或正在使用旧构建产物。用当前工程重新构建，再运行新生成的 <code>nimple-basic.exe</code>。</p>
+<h3>窗口或控件没有出现</h3><ul><li>确认控件创建函数返回成功，并且最后调用了 <code>mainloop()</code>。<li>确认最后进入了 <code>mainloop()</code>。</li><li>确认运行环境有可用桌面会话；Linux 还需 GTK 3 运行库。</li><li>先运行 <code>nimple-basic --check HelloWindow.nb</code> 排除语法和类型错误。</li></ul>
+<h3>点击按钮没有反应</h3><p>检查 <code>onClick</code> 中的回调名是否与方法声明完全一致；点击回调应为无参数的 <code>void</code> 方法。</p></section>
+<section class="card" id="api"><h2>API 速查</h2><pre><code class="language-nb">int window with title as string width as int height as int
+int label with windowId as int text as string
+int button with windowId as int text as string
+int entry with windowId as int placeholder as string
+int textBox with windowId as int initialText as string
+int checkBox with windowId as int text as string
+int passwordEntry with windowId as int placeholder as string
+int comboBox with windowId as int items as string
+int radioButton with windowId as int text as string
+int slider with windowId as int minimum as int maximum as int
+int progressBar with windowId as int minimum as int maximum as int
+int webView with windowId as int url as string
+void webViewNavigate with widgetId as int url as string
+void webViewSetHtml with widgetId as int html as string
+void setValue with widgetId as int value as int
+int getValue with widgetId as int
+
+void setText with widgetId as int text as string
+string getText with widgetId as int
+void setChecked with widgetId as int checked as bool
+bool getChecked with widgetId as int
+void setTitle with windowId as int title as string
+void show with windowId as int
+void setPosition with widgetId as int x as int y as int
+void setSize with widgetId as int width as int height as int
+void setBounds with widgetId as int x as int y as int width as int height as int
+void setRelativeBounds with widgetId as int xPercent as int yPercent as int widthPercent as int heightPercent as int
+void pack with widgetId as int
+void onClick with widgetId as int callbackName as string
+void onChange with widgetId as int callbackName as string
+void mainloop
+void quit
+void messageBox with title as string text as string</code></pre><p>EzWindow 标准库 API 声明位于 <code>Standard library/EzWindow</code> 文件中。修改 Nimple Basic 层 API 声明通常无需重新编译；若修改原生后端 C++ 实现，则需要重新编译解释器。</p></section>
+</article></div></main><div class="footer">Nimple Basic with EzWindow · 桌面 GUI 文档 · 本文档描述当前实现，平台行为请以目标系统实测为准。</div>
+</body></html>

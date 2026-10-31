@@ -1,0 +1,4 @@
+statement "nbf/EmptyOpening.nbf"
+int Main:
+    return importedValue() - 3
+end

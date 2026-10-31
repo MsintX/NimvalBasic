@@ -1,0 +1,6 @@
+int globalValue:
+    return 12
+end
+int Main:
+    return ::globalValue() - 12
+end

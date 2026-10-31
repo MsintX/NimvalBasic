@@ -1,0 +1,5 @@
+const <EzWindow>
+void Window :
+    var new (auto)App = EzWindow.Window
+    App.Style = "theme.ewsty"
+end

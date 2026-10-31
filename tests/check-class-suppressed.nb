@@ -1,0 +1,9 @@
+suppress NB-W2090
+class Legacy:
+    int value:
+        return 1
+    end
+end
+int Main:
+    return Legacy::value() - 1
+end

@@ -1,0 +1,6 @@
+const namespace sys
+int Main:
+    var new count as int
+    var count = "not an int"
+    return count
+end

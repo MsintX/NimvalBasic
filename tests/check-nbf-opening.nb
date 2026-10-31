@@ -1,0 +1,4 @@
+statement "nbf/MathHeader.nbf"
+int Main:
+    return headerValue() - 10
+end

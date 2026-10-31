@@ -1,0 +1,5 @@
+const sys::print
+int Main:
+    var new value = read(int) as int
+    return value
+end

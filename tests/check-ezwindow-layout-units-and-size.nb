@@ -1,0 +1,24 @@
+const <EzWindow>
+void Window :
+    var new (auto)Window = EzWindow.Window
+    Window.Title = "Layout units and size"
+    Window.Geometry("420x360")
+end
+module Controls :
+    void Label :
+        var new (auto)Title = EzWindow.Label
+        loction(%, 8, 82, 10, 10)
+        size(px, 300, 32)
+        setText(Title, "Explicit pixel size")
+    end
+    void Entry :
+        var new (auto)Name = EzWindow.Entry
+        loction(px, 56, 20, 16, 16)
+        size(px, 280, 36)
+    end
+    void PasswordEntry :
+        var new (auto)Password = EzWindow.PasswordEntry
+        loction(%, 50, 20, 10, 10)
+        size(px, 280, 36)
+    end
+end

@@ -1,0 +1,6 @@
+int headerValue:
+    return 10
+end
+void opening:
+    return
+end

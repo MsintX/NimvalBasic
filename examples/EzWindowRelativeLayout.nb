@@ -1,0 +1,39 @@
+statement "EzWindow"
+
+/*
+ * EzWindow responsive layout example.
+ * All percentage values are relative to the window's client area.
+ * Resizing the window causes relative controls to be laid out again.
+ */
+var new root = window("Responsive Nimple UI", 900, 600)
+var new titleLabel = label(root, "Responsive interface")
+var new nameInput = entry(root, "Enter your name")
+var new sayButton = button(root, "Say hello")
+var new messageArea = textBox(root, "This control scales with the window.")
+var new enabledOption = checkBox(root, "Enable friendly greeting")
+
+/* Percent-based bounds: x, y, width, height; all values are 0..100. */
+setRelativeBounds(titleLabel, 5, 5, 90, 8)
+setRelativeBounds(nameInput, 5, 17, 65, 10)
+setRelativeBounds(sayButton, 73, 17, 22, 10)
+setRelativeBounds(messageArea, 5, 32, 90, 48)
+setRelativeBounds(enabledOption, 5, 85, 90, 8)
+
+void greet:
+    if getText(nameInput) == "" then
+        setText(titleLabel, "Please enter your name.")
+    else
+        if getChecked(enabledOption) then
+            setText(titleLabel, "Hello, " + getText(nameInput) + "! Have a great day.")
+        else
+            setText(titleLabel, "Hello, " + getText(nameInput) + "!")
+        end
+    end
+    return
+end
+
+int Main:
+    onClick(sayButton, "greet")
+    mainloop()
+    return 0
+end

@@ -1,0 +1,5 @@
+const namespace sys
+int Main:
+    sys::printfn "count={%d}" "wrong" -> System
+    return 0
+end

@@ -1,0 +1,25 @@
+statement "EzWindow"
+
+var new root = window("Controls API check", 600, 420)
+var new password = passwordEntry(root, "Password")
+var new choice = comboBox(root, "one\ntwo\nthree")
+var new option = radioButton(root, "Option A")
+var new sliderControl = slider(root, 0, 100)
+var new progressControl = progressBar(root, 0, 100)
+var new browser = webView(root, "about:blank")
+
+void stringChanged with value as string:
+    return
+end
+
+int Main:
+    setChecked(option, true)
+    setValue(progressControl, getValue(sliderControl))
+    onChange(password, "stringChanged")
+    onChange(choice, "stringChanged")
+    onChange(option, "stringChanged")
+    onChange(sliderControl, "stringChanged")
+    webViewNavigate(browser, "about:blank")
+    webViewSetHtml(browser, "<html><body>OK</body></html>")
+    return 0
+end

@@ -1,0 +1,4 @@
+int Main:
+    var new value = (1 + )
+    return 0
+end

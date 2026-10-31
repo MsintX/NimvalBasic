@@ -1,0 +1,6 @@
+const namespace sys
+statement "Math"
+int Main:
+    var new value = maxInt(1, "not an int")
+    return value
+end

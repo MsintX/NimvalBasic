@@ -1,0 +1,46 @@
+statement "EzWindow"
+
+var new root = window("EzWindow controls", 640, 520)
+var new heading = label(root, "More native controls")
+var new password = passwordEntry(root, "Password")
+var new choice = comboBox(root, "Small\nMedium\nLarge")
+var new radioOne = radioButton(root, "Use light mode")
+var new radioTwo = radioButton(root, "Use system mode")
+var new volume = slider(root, 0, 100)
+var new progress = progressBar(root, 0, 100)
+var new status = label(root, "Ready")
+var new applyButton = button(root, "Apply")
+
+void volumeChanged with value as string:
+    setValue(progress, value as int)
+    setText(status, "Slider value: " + value)
+    return
+end
+
+void choiceChanged with value as string:
+    setText(status, "Selected: " + value)
+    return
+end
+
+void applyChanges:
+    setText(status, "Size: " + getText(choice) + ", volume: " + getValue(volume) as string)
+    return
+end
+
+int Main:
+    setRelativeBounds(heading, 4, 3, 92, 7)
+    setRelativeBounds(password, 4, 13, 92, 7)
+    setRelativeBounds(choice, 4, 23, 92, 7)
+    setRelativeBounds(radioOne, 4, 33, 45, 6)
+    setRelativeBounds(radioTwo, 50, 33, 45, 6)
+    setRelativeBounds(volume, 4, 43, 92, 9)
+    setRelativeBounds(progress, 4, 57, 92, 6)
+    setRelativeBounds(status, 4, 68, 92, 7)
+    setRelativeBounds(applyButton, 4, 80, 92, 8)
+    setChecked(radioTwo, true)
+    onChange(volume, "volumeChanged")
+    onChange(choice, "choiceChanged")
+    onClick(applyButton, "applyChanges")
+    mainloop()
+    return 0
+end

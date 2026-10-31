@@ -1,0 +1,11 @@
+module Helpers:
+    int first:
+        return 1
+    end
+    int second:
+        return first() + 1
+    end
+end
+int Main:
+    return Helpers::second() - 2
+end

@@ -1,0 +1,7 @@
+statement "output"
+int Main:
+    sys::print "hello" -> System
+    sys::printf "value={%d}" 42 -> System
+    sys::printfn "done" -> System
+    return 0
+end

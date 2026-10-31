@@ -1,0 +1,4 @@
+int Main:
+    sys::pause
+    return 0
+end

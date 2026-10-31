@@ -1,0 +1,23 @@
+int absInt with value as int:
+    if value < 0 then
+        return -value
+    else
+        return value
+    end
+end
+
+int maxInt with a as int b as int:
+    if a > b then
+        return a
+    else
+        return b
+    end
+end
+
+int minInt with a as int b as int:
+    if a < b then
+        return a
+    else
+        return b
+    end
+end

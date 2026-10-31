@@ -1,0 +1,8 @@
+statement "output"
+const namespace sys
+statement "Math"
+
+int Main:
+    sys::printfn "max={%d}" maxInt(7, 12) -> System
+    return absInt(-5) - 5
+end

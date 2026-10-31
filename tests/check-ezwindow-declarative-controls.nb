@@ -1,0 +1,44 @@
+const <EzWindow>
+void Window :
+    var new (auto)App = EzWindow.Window
+    App.Title = "Declarative controls"
+    App.Geometry("640x480")
+end
+module Controls :
+    void Label :
+        loction(%, 5, 90, 5, 5)
+        setText(Label, "Ready")
+    end
+    void Button1 :
+        loction(%, 15, 75, 5, 5)
+        setText(Button1, "Run")
+    end
+    void LabelStatus :
+        loction(%, 18, 72, 5, 5)
+        setText(LabelStatus, "Ready")
+    end
+    void Entry :
+        loction(%, 25, 65, 5, 5)
+    end
+    void TextBox :
+        loction(%, 35, 55, 5, 5)
+    end
+    void CheckBox :
+        loction(%, 45, 45, 5, 5)
+    end
+    void PasswordEntry :
+        loction(%, 55, 35, 5, 5)
+    end
+    void ComboBox :
+        loction(%, 65, 25, 5, 5)
+    end
+    void RadioButton :
+        loction(%, 75, 15, 5, 5)
+    end
+    void Slider :
+        loction(%, 85, 5, 5, 5)
+    end
+    void ProgressBar :
+        loction(%, 90, 0, 5, 5)
+    end
+end

@@ -1,0 +1,10 @@
+int maybe with value as int:
+    if value > 0 then
+        return value
+    else if value == 0 then
+        return 0
+    end
+end
+int Main:
+    return maybe(1)
+end

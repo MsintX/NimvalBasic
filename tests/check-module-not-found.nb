@@ -1,0 +1,5 @@
+statement "DefinitelyMissingModule"
+
+int Main:
+    return 0
+end

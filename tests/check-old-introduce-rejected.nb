@@ -1,0 +1,4 @@
+introduce "output"
+int Main:
+    return 0
+end

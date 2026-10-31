@@ -1,0 +1,66 @@
+# IDE/User
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build Output
+[Bb]uild/
+[Bb]in/
+[Oo]bj/
+[Ll]ogs/
+*.log
+
+# Intermediate product
+*.pdb
+*.ilk
+*.obj
+*.iobj
+*.ipdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+*.vspscc
+*.vssscc
+
+# Release/Package
+publish/
+*.publishproj
+*.pubxml
+*.pubxml.user
+*.nupkg
+*.snupkg
+packages/
+!packages/build/
+
+# Editor
+.idea/
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/settings.json
+!.vscode/extensions.json
+*.swp
+
+# pfx
+*.pfx
+
+# System
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# Test/Result
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.coverage
+*.coveragexml

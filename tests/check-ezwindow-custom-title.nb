@@ -1,0 +1,6 @@
+statement "EzWindow"
+void Window:
+    var new root = window("Custom title", 640, 480)
+    mainloop()
+    return
+end

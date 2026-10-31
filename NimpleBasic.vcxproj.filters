@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{E8D0AC4C-2C9E-477C-97A0-6003B6C6A0F2}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Standard library">
+      <UniqueIdentifier>{7A42E7E2-015D-4814-B6D8-972EA8D78B6C}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="示例">
+      <UniqueIdentifier>{481E7A3D-07A1-4D8C-BA93-6E2A25B0EA80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="测试">
+      <UniqueIdentifier>{02A0EA98-6DF9-4B6B-A58C-354584E0B8B1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Standard library\EzWindow">
+      <Filter>Standard library</Filter>
+    </None>
+    <None Include="Standard library\Math">
+      <Filter>Standard library</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="EzWindowLinux.cpp">
+      <Filter>源文件</Filter>
+    </None>
+    <None Include="EzWindowMac.mm">
+      <Filter>源文件</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Compat14.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="NimpleBasic.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="examples\EzWindowHello.nb">
+      <Filter>示例</Filter>
+    </None>
+    <None Include="examples\EzWindowRelativeLayout.nb">
+      <Filter>示例</Filter>
+    </None>
+    <None Include="examples\EzWindowExtendedControls.nb">
+      <Filter>示例</Filter>
+    </None>
+    <None Include="examples\EzWindowWebView2.nb">
+      <Filter>示例</Filter>
+    </None>
+    <None Include="tests\check-ezwindow-bad-callback.nb">
+      <Filter>测试</Filter>
+    </None>
+    <None Include="tests\check-ezwindow-relative-layout.nb">
+      <Filter>测试</Filter>
+    </None>
+    <None Include="tests\check-ezwindow-bad-layout-type.nb">
+      <Filter>测试</Filter>
+    </None>
+    <None Include="tests\check-ezwindow-extended-controls.nb">
+      <Filter>测试</Filter>
+    </None>
+  </ItemGroup>
+</Project>

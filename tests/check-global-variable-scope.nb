@@ -1,0 +1,4 @@
+var new globalValue = 12
+int Main:
+    return ::globalValue - 12
+end

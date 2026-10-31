@@ -1,0 +1,14 @@
+const <EzWindow>
+void Window:
+    var new (auto)App = EzWindow.Window
+end
+module Controls :
+    void Button:
+        var new (auto)Run = EzWindow.Button
+        setText(Run, "Run")
+    end
+    void Label:
+        // no EzWindow.Label instance: must not synthesize a control
+        setText(Label, "not created")
+    end
+end

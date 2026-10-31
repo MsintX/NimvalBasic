@@ -1,0 +1,5 @@
+$const namespace sys
+int Main:
+    sys::print "legacy" -> System
+    return 0
+end

@@ -1,0 +1,10 @@
+const <EzWindow>
+void Window :
+    var new (auto)Window = EzWindow.Window
+end
+module Controls :
+    void Entry :
+        var new (auto)Name = EzWindow.Entry
+        size(px, 0, 36)
+    end
+end

@@ -1,0 +1,4 @@
+statement sys::notARealStatement
+int Main:
+    return 0
+end

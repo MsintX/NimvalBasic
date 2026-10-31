@@ -1,0 +1,9 @@
+module MathOps:
+    int twice with value as int:
+        return value * 2
+    end
+end
+
+int Main:
+    return MathOps::twice(2) - 4
+end

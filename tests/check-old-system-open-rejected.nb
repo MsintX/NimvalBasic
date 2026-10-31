@@ -1,0 +1,5 @@
+statement "System"
+int Main:
+    sys::print "legacy import" -> System
+    return 0
+end

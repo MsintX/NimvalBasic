@@ -1,0 +1,5 @@
+const namespace sys
+int Main:
+    sys::print "target missing" ->
+    return 0
+end

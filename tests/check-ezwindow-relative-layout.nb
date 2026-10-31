@@ -1,0 +1,24 @@
+statement "EzWindow"
+
+var new root = window("Relative Layout", 800, 500)
+var new status = label(root, "Ready")
+var new actionButton = button(root, "Run")
+var new nameInput = entry(root, "Name")
+var new notes = textBox(root, "Notes")
+
+setPosition(status, 12, 14)
+setSize(status, 320, 28)
+setBounds(actionButton, 360, 14, 140, 36)
+setRelativeBounds(nameInput, 5, 15, 70, 10)
+setRelativeBounds(notes, 5, 30, 90, 55)
+
+void onRun:
+    setText(status, getText(nameInput))
+    return
+end
+
+int Main:
+    onClick(actionButton, "onRun")
+    mainloop()
+    return 0
+end

@@ -1,0 +1,7 @@
+statement "EzWindow"
+void Window:
+    var new root = window()
+    var new labelId = label(root, "Hello from Nimple Basic")
+    mainloop()
+    return
+end

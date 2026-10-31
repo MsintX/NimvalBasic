@@ -1,0 +1,8 @@
+const namespace sys
+int Main:
+    var new value as int
+    for false then
+        var value = 7
+    end
+    return value
+end

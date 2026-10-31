@@ -1,0 +1,8 @@
+statement "input"
+statement "output"
+int Main:
+    var new value = sys::read(int) as int
+    sys::print "value" -> System
+    sys::print "value" -> System
+    return value
+end

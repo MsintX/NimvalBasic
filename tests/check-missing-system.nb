@@ -1,0 +1,4 @@
+int Main:
+    print "must open System" -> System
+    return 0
+end

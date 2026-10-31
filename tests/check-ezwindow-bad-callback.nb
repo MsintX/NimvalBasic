@@ -1,0 +1,8 @@
+statement "EzWindow"
+var new root = window("Test", 400, 300)
+var new action = button(root, "Click")
+
+int Main:
+    onClick(action, "doesNotExist")
+    return 0
+end

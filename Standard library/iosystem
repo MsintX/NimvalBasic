@@ -1,0 +1,5 @@
+/* Combined native input/output statement definitions. */
+statement sys::read
+statement sys::print
+statement sys::printf
+statement sys::printfn

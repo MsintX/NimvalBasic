@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Nimple Basic 语言使用文档：程序结构、类型、方法、输出、预处理指令、静态检查与运行。">
+<title>Nimple Basic 语言文档</title><style>
+:root{color-scheme:light dark;--bg:#f7f8fb;--panel:#fff;--ink:#1d2433;--muted:#596579;--line:#dce2eb;--accent:#315efb;--code:#111827;--codeink:#e5edf8;--soft:#edf2ff}
+@media(prefers-color-scheme:dark){:root{--bg:#10141c;--panel:#181e29;--ink:#edf2fa;--muted:#a8b3c6;--line:#30394a;--accent:#8ba4ff;--code:#090c12;--codeink:#e5edf8;--soft:#202a43}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{padding:54px 22px 42px;background:linear-gradient(135deg,#172554,#315efb 70%,#6d8dff);color:white}
+header .wrap,main,.footer{max-width:1040px;margin:auto}header .eyebrow{text-transform:uppercase;letter-spacing:.13em;font-size:.78rem;opacity:.8;font-weight:700}
+h1{font-size:clamp(2.3rem,6vw,4rem);line-height:1.08;margin:.45rem 0 1rem;letter-spacing:-.04em}header p{font-size:1.1rem;max-width:760px;color:#e8edff;margin:0}
+main{padding:26px 22px 70px}.layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:28px;align-items:start}
+nav{position:sticky;top:18px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+nav strong{display:block;margin:0 0 8px}nav a{display:block;color:var(--muted);text-decoration:none;padding:5px 0;font-size:.92rem}nav a:hover{color:var(--accent)}
+article{min-width:0}.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;margin:0 0 20px;box-shadow:0 5px 20px #00000008}
+h2{font-size:1.65rem;line-height:1.25;letter-spacing:-.025em;margin:0 0 12px}h3{font-size:1.13rem;margin:22px 0 8px}p{margin:.6rem 0 1rem}ul,ol{padding-left:1.4rem}li{margin:.3rem 0}
+code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.92em;background:var(--soft);padding:.13em .35em;border-radius:5px}
+pre{overflow:auto;background:var(--code);color:var(--codeink);padding:18px;border-radius:12px;line-height:1.55;font-size:.9rem;border:1px solid #ffffff12}pre code{background:none;padding:0;color:inherit}
+.note{border-left:4px solid var(--accent);padding:12px 15px;background:var(--soft);border-radius:0 9px 9px 0;margin:14px 0}
+table{width:100%;border-collapse:collapse;margin:12px 0}th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}th{font-size:.9rem;color:var(--muted)}
+.pill{display:inline-block;border:1px solid #ffffff66;border-radius:999px;padding:4px 10px;font-size:.8rem;margin:16px 8px 0 0}
+a{color:var(--accent)}.footer{padding:0 22px 36px;color:var(--muted);font-size:.88rem}
+@media(max-width:760px){.layout{grid-template-columns:1fr}nav{position:static}header{padding-top:38px}.card{padding:19px}table{display:block;overflow-x:auto}}
+</style></head>
+<body>
+<header><div class="wrap"><div class="eyebrow">Nimple Basic Native Runtime · 0.1.0</div><h1>Nimple Basic 语言文档</h1><p>从第一个程序开始，了解 Nimple Basic 的程序结构、静态类型、方法、输出格式、内置模块与命令行工具。</p><span class="pill">C++14 兼容原生解释器</span><span class="pill">运行前静态检查</span><span class="pill">标准库文件夹加载</span></div></header>
+<main><div class="layout">
+<nav><strong>目录</strong>
+<a href="#start">快速开始</a><a href="#structure">程序结构</a><a href="#types">类型与变量</a><a href="#methods">方法与返回</a><a href="#flow">流程控制</a><a href="#operators">表达式与运算符</a><a href="#output">输出</a><a href="#modules">模块与预处理</a><a href="#math">内置 Math</a><a href="#checking">静态检查</a><a href="#cli">命令行</a><a href="#limits">当前边界</a></nav>
+<article>
+<section class="card" id="start"><h2>快速开始</h2><p>将代码保存为 <code>Hello.nb</code>：</p>
+<pre><code class="language-nb">const namespace sys
+
+int Main:
+    printfn "Hello, Nimple Basic!" -> System
+    return 0
+end</code></pre>
+<p>运行程序：</p><pre><code>nimple-basic Hello.nb</code></pre>
+<p>只检查、不执行：</p><pre><code>nimple-basic --check Hello.nb</code></pre>
+<div class="note">Nimple Basic 会先进行预处理、词法分析、语法分析和整程序静态类型检查。检查失败时，程序不会开始执行，也不会产生输出副作用。</div></section>
+<section class="card" id="structure"><h2>程序结构</h2><p>方法由返回类型、方法名、可选参数列表、冒号、方法体和 <code>end</code> 组成。普通程序入口为 <code>Main</code>；EzWindow 程序也可以使用无参数的 <code>void Window</code>。</p>
+<pre><code class="language-nb">int Main:
+    return 0
+end</code></pre>
+<p>方法体内的语句按顺序执行。条件块和循环块也使用 <code>end</code> 结束。注释可使用 <code>/* ... */</code>。</p>
+<pre><code class="language-nb">void sayHello:
+    printfn "Hello" -> System
+    return
+end</code></pre></section>
+<section class="card" id="types"><h2>类型与变量</h2><p>当前解释器使用显式类型声明。常见类型包括：</p>
+<table><thead><tr><th>类型</th><th>用途</th><th>示例</th></tr></thead><tbody>
+<tr><td><code>int</code></td><td>整数</td><td><code>int count</code></td></tr><tr><td><code>float</code></td><td>浮点数</td><td><code>float ratio</code></td></tr><tr><td><code>bool</code></td><td>布尔值</td><td><code>bool ready</code></td></tr><tr><td><code>string</code></td><td>字符串</td><td><code>string title</code></td></tr><tr><td><code>char</code></td><td>字符</td><td><code>char letter</code></td></tr><tr><td><code>void</code></td><td>无返回值方法</td><td><code>void greet:</code></td></tr></tbody></table>
+<p>局部变量使用 <code>var new</code> 声明：</p><pre><code class="language-nb">int Main:
+    var new count = 3
+    var new message = "ready"
+    var new enabled = true
+    count = count + 1
+    return count - 4
+end</code></pre>
+<div class="note">变量必须在使用前初始化。赋值类型必须匹配；未声明变量、重复声明和作用域错误会在运行前报告。</div>
+<h3>显式类型转换</h3><p>使用 <code>as</code> 进行类型转换；<code>as!</code> 表示显式强制转换形式。转换是否允许取决于类型规则，编译期可确定失败的常量转换会被拒绝。</p>
+<pre><code class="language-nb">int Main:
+    var new count = "42" as int
+    return count - 42
+end</code></pre></section>
+<section class="card" id="methods"><h2>方法与返回值</h2><p>参数必须写明类型，格式为 <code>with 参数名 as 类型</code>。</p>
+<pre><code class="language-nb">int add with a as int b as int:
+    return a + b
+end
+
+int Main:
+    var new total = add(7, 5)
+    return total - 12
+end</code></pre>
+<p>有返回类型的方法必须在所有可能路径上返回正确类型的值；<code>void</code> 方法使用不带值的 <code>return</code>。</p>
+<h3>参数和调用检查</h3><ul><li>调用的参数数量必须正确。</li><li>每个实参必须与形参类型兼容。</li><li>未声明的方法会在执行前报错。</li><li>不允许把 <code>void</code> 方法调用当作普通值使用。</li></ul></section>
+<section class="card" id="flow"><h2>流程控制</h2>
+<h3>条件语句</h3><pre><code class="language-nb">if score >= 60 then
+    printfn "Passed" -> System
+else
+    printfn "Try again" -> System
+end</code></pre>
+<h3>循环</h3><pre><code class="language-nb">int Main:
+    var new i = 0
+    for i < 3:
+        printfn "loop" -> System
+        i = i + 1
+    end
+    return 0
+end</code></pre>
+<p><code>break</code> 和 <code>continue</code> 只能用于有效的循环上下文。条件表达式需要是布尔值。</p></section>
+<section class="card" id="operators"><h2>表达式与运算符</h2><p>当前实现支持常用算术、比较、逻辑和一元运算。运算符两侧的类型会静态检查。</p>
+<table><thead><tr><th>类别</th><th>示例</th></tr></thead><tbody><tr><td>算术</td><td><code>+</code>、<code>-</code>、<code>*</code>、<code>/</code>、<code>%</code></td></tr><tr><td>比较</td><td><code>==</code>、<code>!=</code>、<code>&lt;</code>、<code>&lt;=</code>、<code>&gt;</code>、<code>&gt;=</code></td></tr><tr><td>逻辑</td><td><code>&amp;&amp;</code>、<code>||</code>、<code>!</code></td></tr><tr><td>字符串拼接</td><td><code>"Hello, " + name</code></td></tr></tbody></table>
+<p>具体支持范围以当前解释器实现为准；未实现的语法会明确报错。</p></section>
+<section class="card" id="output"><h2>控制台与文件输出</h2><p>内置输入输出语句属于 <code>sys</code> 命名空间，必须使用 <code>sys::</code> 前缀，或通过源文件中的 <code>const</code> 显式导入。<code>statement "input"</code>、<code>statement "output"</code> 和 <code>statement "iosystem"</code> 分别引入输入、输出和组合语句包；它们不会创建函数。</p>
+<pre><code class="language-nb">const namespace sys
+
+int Main:
+    print "Hello" -> System
+    printf "Score: %d" 100 -> System
+    printfn "Done: %s" "yes" -> "logs/run.txt"
+    return 0
+end</code></pre>
+<table><thead><tr><th>语句</th><th>行为</th></tr></thead><tbody><tr><td><code>print</code></td><td>输出文本，不自动换行</td></tr><tr><td><code>printf</code></td><td>按格式串输出，不自动换行</td></tr><tr><td><code>printfn</code></td><td>按格式串输出并追加换行</td></tr></tbody></table>
+<p>输入通过表达式 <code>sys::read</code> 或 <code>sys::read(type)</code> 读取标准输入；可用类型包括 <code>int</code>、<code>float</code>、<code>double</code>、<code>bool</code>、<code>string</code> 和 <code>char</code>。输出目标可为 <code>System</code>，也可为文件名、相对路径或绝对路径。相对路径以当前 <code>.nb</code> 文件所在目录为基准；父目录不存在时会自动创建，文件采用追加写入。</p>
+<h3>格式占位符</h3><table><thead><tr><th>占位符</th><th>期望参数类型</th></tr></thead><tbody><tr><td><code>%s</code></td><td><code>string</code></td></tr><tr><td><code>%d</code></td><td><code>int</code></td></tr><tr><td><code>%f</code></td><td><code>float</code></td></tr><tr><td><code>%c</code></td><td><code>char</code></td></tr></tbody></table>
+<div class="note">格式串必须是字符串字面量，以便解释器在执行前验证占位符数量和参数类型。缺少输出目标或未使用 sys 前缀/导入对应名称都会报错。三个输入输出标准库文件只引入内置语句，不定义函数包装。</div></section>
+<section class="card" id="modules"><h2>模块与预处理指令</h2><h3><code>statement</code></h3><p><code>statement "模块名"</code> 用于引进内置标准库模块，必须放在普通代码语句之前；旧关键词 <code>introduce</code> 已移除。标准库文件内部的 <code>statement sys::name</code> 用于声明原生语句定义：</p><pre><code class="language-nb">const namespace sys
+statement "Math"</code></pre><p>标准库模块包括 <code>Math</code>、<code>EzWindow</code>、<code>input</code>、<code>output</code> 和 <code>iosystem</code>，从解释器可执行文件同级的 <code>Standard library</code> 文件夹读取无扩展名文件。</p>
+<h3><code>copy</code></h3><p><code>copy "Math"</code> 会从解释器同级的 <code>Standard library/Math</code> 文件读取并展开源码。显式相对路径或绝对路径会读取对应文件并将内容展开到当前源码中。请只对可信文件使用文件路径形式的 <code>copy</code>。</p>
+<div class="note">添加或修改标准库时，直接编辑解释器同级 <code>Standard library</code> 文件夹中的无扩展名文件。发布时必须将整个文件夹与解释器放在一起。</div></section>
+<section class="card" id="nimple-modules"><h2>Nimple Basic 0.1.0：作用域与文件类型</h2><p>作用域解析符 <code>::</code> 支持模块方法与全局方法访问：</p><pre><code class="language-nb">module MathOps:
+    int twice with value as int:
+        return value * 2
+    end
+end
+int Main:
+    return MathOps::twice(::globalValue())
+end</code></pre><p><code>.nb</code> 是源文件，<code>.nbf</code> 是首文件，<code>.nbt</code> 是可选尾文件。打开没有 <code>opening</code> 方法的首文件时会发出 NB-W2101 并按源码复制方式展开。尾文件采用 <code>key = value</code> 格式，目前会校验但尚不会自动应用到运行时设置。</p></section>
+<section class="card" id="math"><h2>内置 Math</h2><p>Math 提供整数辅助方法：</p>
+<table><thead><tr><th>方法</th><th>签名</th><th>说明</th></tr></thead><tbody><tr><td><code>absInt</code></td><td><code>int absInt with value as int</code></td><td>返回整数绝对值</td></tr><tr><td><code>maxInt</code></td><td><code>int maxInt with a as int b as int</code></td><td>返回两个整数中的较大值</td></tr><tr><td><code>minInt</code></td><td><code>int minInt with a as int b as int</code></td><td>返回两个整数中的较小值</td></tr></tbody></table>
+<pre><code class="language-nb">statement "Math"
+const namespace sys
+
+int Main:
+    printfn "max=%d" maxInt(7, 12) -> System
+    return absInt(-5) - 5
+end</code></pre></section>
+<section class="card" id="checking"><h2>静态检查</h2><p>运行前检查覆盖当前已实现语法，包括方法签名、参数类型、返回路径、变量初始化、作用域、运算符、转换、流程控制、格式串和模块可见性等。</p><p>建议在运行前把 <code>nimple-basic --check your-file.nb</code> 加入编辑器或构建流程。静态检查不会执行程序，也不会触发文件输出或 GUI。</p></section>
+<section class="card" id="cli"><h2>命令行</h2><table><thead><tr><th>命令</th><th>说明</th></tr></thead><tbody><tr><td><code>nimple-basic file.nb</code></td><td>检查后运行源码</td></tr><tr><td><code>nimple-basic --check file.nb</code></td><td>只做静态检查</td></tr><tr><td><code>nimple-basic --check-stdin file.nb</code></td><td>从标准输入读取源码，并以指定文件作为上下文</td></tr><tr><td><code>nimple-basic --version</code></td><td>显示版本信息</td></tr></tbody></table>
+<h3>构建解释器</h3><pre><code>cmake -S . -B build
+cmake --build build --config Release</code></pre><p>Windows Visual Studio 用户可以打开 <code>NimpleBasic.sln</code> 构建。解释器使用 C++14。</p></section>
+<section class="card" id="limits"><h2>当前边界与说明</h2><ul><li>本文档对应 Nimple Basic 0.1.0 的当前实现。</li><li><code>class</code> 是已弃用的 <code>module</code> 兼容别名，会产生 NB-W2090 警告；可用 <code>suppress NB-W2090</code> 抑制。</li><li><code>module</code> 是静态命名空间，不是可实例化的对象类型；继承、接口/trait、对象生命周期、new/delete 和嵌套类/枚举尚未实现。</li><li><code>copy</code> 是源码级展开，部分错误位置显示展开后源码中的行列，未必映射回原包含文件。</li><li>所有标准库文件（包括 input、output、iosystem 语句包）都必须随解释器一起分发，并放在可执行文件同级的 <code>Standard library</code> 文件夹中。</li></ul></section>
+</article></div></main><div class="footer">Nimple Basic Native Runtime · 语言文档 · 建议与实际版本源码、示例和测试一起使用。</div>
+</body></html>

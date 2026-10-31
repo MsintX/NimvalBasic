@@ -1,0 +1,12 @@
+statement "output"
+const namespace sys
+statement "Math"
+
+int Main:
+    var new count = 0
+    for count < 3 then
+        var count = count + 1
+    end
+    sys::printfn "max={%d}; min={%d}" maxInt(7, 12) minInt(7, 12) -> System
+    return absInt(-5) - 5
+end

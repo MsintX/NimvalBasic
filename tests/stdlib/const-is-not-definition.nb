@@ -1,0 +1,5 @@
+const sys::print
+int Main:
+    sys::print "const only imports an already defined native statement" -> System
+    return 0
+end

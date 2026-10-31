@@ -1,0 +1,5 @@
+statement "output"
+int Main:
+    sys::print "Nimple Basic" -> System
+    return 0
+end
