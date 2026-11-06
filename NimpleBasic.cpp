@@ -3049,12 +3049,12 @@ namespace nimple {
     static std::string transformEasyWindowSyntax(const std::string& source) {
         const bool declarativeEasyWindow = source.find("__NIMPLE_EZWINDOW_DSL__") != std::string::npos;
         std::istringstream input(source); std::ostringstream output; std::string line;
-        const std::regex windowStart(R"(^\s*void\s+Window\s*\(\s*void\s*\)\s*\{\s*(?://.*)?$)");
+        const std::regex windowStart(R"(^\s*void\s+Window\s*(?:\(\s*void\s*\))?\s*(?:\{|:)\s*(?://.*)?$)");
         const std::regex instancePattern(R"(^\s*var\s+new\s+\(auto\)([A-Za-z_][A-Za-z0-9_]*)\s*=\s*EasyWindow\.Window\s*(?://.*)?$)");
         const std::regex titlePattern(R"(^\s*[A-Za-z_][A-Za-z0-9_]*\.Title\s*=\s*("(?:\\.|[^"\\])*")\s*(?://.*)?$)");
         const std::regex iconPattern(R"(^\s*[A-Za-z_][A-Za-z0-9_]*\.Icon\s*=\s*("(?:\\.|[^"\\])*")\s*(?://.*)?$)");
         const std::regex geometryPattern(R"REGEX(^\s*[A-Za-z_][A-Za-z0-9_]*\.Geometry\(\s*"([0-9]+)x([0-9]+)"\s*\)\s*(?://.*)?$)REGEX");
-        const std::regex controlStart(R"(^\s*void\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*void\s*\)\s*\{\s*(?://.*)?$)");
+        const std::regex controlStart(R"(^\s*void\s+([A-Za-z_][A-Za-z0-9_]*)\s*(?:\(\s*void\s*\))?\s*(?:\{|:)\s*(?://.*)?$)");
         const std::regex locationPattern(R"(^\s*loction\(\s*(%|px)\s*,\s*([0-9]+(?:\.[0-9]+)?)\s*,\s*([0-9]+(?:\.[0-9]+)?)\s*,\s*([0-9]+(?:\.[0-9]+)?)\s*,\s*([0-9]+(?:\.[0-9]+)?)\s*\)\s*(?://.*)?$)");
         const std::regex sizePattern(R"(^\s*size\(\s*px\s*,\s*([0-9]+(?:\.[0-9]+)?)\s*,\s*([0-9]+(?:\.[0-9]+)?)\s*\)\s*(?://.*)?$)");
         const std::regex controlInstancePattern(R"(^\s*var\s+new\s+\(auto\)([A-Za-z_][A-Za-z0-9_]*)\s*=\s*EasyWindow\.([A-Za-z_][A-Za-z0-9_]*)\s*(?://.*)?$)");
@@ -3124,11 +3124,11 @@ namespace nimple {
                         windowBody.push_back("ezWindowInvalidStyleExtension(" + style + ")");
                     continue;
                 }
-                if (t=="}") { inWindow=false; hasWindowDeclaration=true; continue; }
+                if (t=="}" || t=="end") { inWindow=false; hasWindowDeclaration=true; continue; }
                 if (!t.empty() && t.rfind("//",0)!=0) windowBody.push_back(t);
                 continue;
             }
-            if (declarativeEasyWindow && !inControls && t=="module Controls {") { inControls=true; continue; }
+            if (declarativeEasyWindow && !inControls && (t=="module Controls {" || t=="module Controls :")) { inControls=true; continue; }
             if (inControls && !inControl && std::regex_match(line,m,controlStart)) {
                 current=ControlDecl{}; current.name=m[1].str();
                 static const std::unordered_map<std::string,std::string> controlKinds = {
@@ -3164,11 +3164,11 @@ namespace nimple {
                 }
                 if (std::regex_match(line,m,locationPattern)) { current.firstStatement=false; current.locationPercent=(m[1].str()=="%"); current.edges={{m[2].str(),m[3].str(),m[4].str(),m[5].str()}}; current.hasLocation=true; continue; }
                 if (std::regex_match(line,m,sizePattern)) { current.firstStatement=false; current.sizeLength=static_cast<int>(std::lround(std::stod(m[1].str()))); current.sizeWidth=static_cast<int>(std::lround(std::stod(m[2].str()))); current.hasSize=true; continue; }
-                if (t=="}") { controls.push_back(current); inControl=false; continue; }
+                if (t=="}" || t=="end") { controls.push_back(current); inControl=false; continue; }
                 if (!t.empty() && t.rfind("//",0)!=0) { current.firstStatement=false; current.body.push_back(t); }
                 continue;
             }
-            if (inControls && !inControl && t=="}") { inControls=false; continue; }
+            if (inControls && !inControl && (t=="}" || t=="end")) { inControls=false; continue; }
             if (std::regex_match(line,m,oldWindow)) {
                 const std::string w=m[4].str(); output << "var new " << w << " = window(" << m[1].str() << ", " << (m[2].matched?m[2].str():"200") << ", " << (m[3].matched?m[3].str():"200") << ")";
             } else if (std::regex_match(line,m,oldControl)) output << "var new " << m[4].str() << " = " << m[1].str() << "(" << m[2].str() << ", " << m[3].str() << ")";
@@ -3321,7 +3321,8 @@ namespace nimple {
                 } else if (rest == "sys::print" || rest == "sys::printf" || rest == "sys::printfn" || rest == "sys::read" || rest == "sys::pause") {
                     output << "/*__NIMPLE_IMPORT_SYS_" << rest.substr(5) << "__*/";
                 } else if (!rest.empty() && rest.front() == '<' && rest.back() == '>') {
-                    const std::string moduleName = rest.substr(1, rest.size()-2);
+                    std::string moduleName = rest.substr(1, rest.size()-2);
+                    if (moduleName == "EzWindow") moduleName = "EasyWindow";
                     if (seenSourceStatement) diagnostics.emplace_back("NB3003", lineNumber, 1, "标准库 include 必须放在源代码语句之前。");
                     else {
                         auto moduleSource = readStandardLibraryModule(moduleName);
