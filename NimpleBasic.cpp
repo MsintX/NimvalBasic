@@ -3235,7 +3235,7 @@ namespace nimple {
             directiveProbe >> directiveWord;
             const bool canBeDirective = !inBlockComment && !inTripleString &&
                 (directiveWord == "replace" || directiveWord == "copy" || directiveWord == "suppress" ||
-                 directiveWord == "const" || directiveWord == "statement");
+                 directiveWord == "const" || directiveWord == "include" || directiveWord == "statement");
 
             if (!canBeDirective) {
                 const bool hasCode = lineContainsSourceCode(lineText, inBlockComment, inTripleString);
@@ -3309,14 +3309,14 @@ namespace nimple {
                 if (rest == "NB-W2090") output << "/*__NIMPLE_SUPPRESS_CLASS__*/";
                 else diagnostics.emplace_back("NB3004", lineNumber, 1, "suppress 当前只支持 NB-W2090。");
             }
-            else if (directive == "const") {
+            else if (directive == "const" || directive == "include") {
                 if (rest == "namespace sys") {
                     output << "/*__NIMPLE_IMPORT_SYS__*/";
                 } else if (rest == "sys::print" || rest == "sys::printf" || rest == "sys::printfn" || rest == "sys::read" || rest == "sys::pause") {
                     output << "/*__NIMPLE_IMPORT_SYS_" << rest.substr(5) << "__*/";
                 } else if (!rest.empty() && rest.front() == '<' && rest.back() == '>') {
                     const std::string moduleName = rest.substr(1, rest.size()-2);
-                    if (seenSourceStatement) diagnostics.emplace_back("NB3003", lineNumber, 1, "标准库引进必须放在源代码语句之前。");
+                    if (seenSourceStatement) diagnostics.emplace_back("NB3003", lineNumber, 1, "标准库 include 必须放在源代码语句之前。");
                     else {
                         auto moduleSource = readStandardLibraryModule(moduleName);
                         if (!moduleSource) diagnostics.emplace_back("NB3005", lineNumber, 1, "标准库无法找到：" + moduleName);
@@ -3330,10 +3330,10 @@ namespace nimple {
                     }
                 } else if (!rest.empty() && rest.front() == '\"') {
                     std::string pathName, error;
-                    if (!readDirectiveString(rest, pathName, lineNumber, error)) diagnostics.emplace_back("NB3003", lineNumber, 1, "const 路径无效：" + error);
+                    if (!readDirectiveString(rest, pathName, lineNumber, error)) diagnostics.emplace_back("NB3003", lineNumber, 1, "include 路径无效：" + error);
                     else {
                         auto path = resolveCopyFile(pathName, normalizedPath);
-                        if (!path) diagnostics.emplace_back("NB3005", lineNumber, 1, "const 无法打开文件：" + pathName);
+                        if (!path) diagnostics.emplace_back("NB3005", lineNumber, 1, "include 无法打开文件：" + pathName);
                         else {
                             std::ifstream file = openInputFile(*path, std::ios::binary);
                             std::ostringstream buffer; buffer << file.rdbuf();
@@ -3343,7 +3343,7 @@ namespace nimple {
                         }
                     }
                 } else {
-                    diagnostics.emplace_back("NB3004", lineNumber, 1, "const 使用 <标准库名称>、\"路径/文件名\" 或 sys 名称。");
+                    diagnostics.emplace_back("NB3004", lineNumber, 1, "include 使用 <标准库名称>、\"路径/文件名\" 或 sys 名称。");
                 }
             }
             else if (directive == "statement" && (rest.empty() || rest.front() != '"')) {
