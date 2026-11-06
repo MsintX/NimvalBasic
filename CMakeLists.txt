@@ -89,6 +89,9 @@ if(BUILD_TESTING)
         COMMAND $<TARGET_FILE:nimple-basic> --check "${CMAKE_CURRENT_SOURCE_DIR}/tests/check-unified-grammar.nb")
     add_test(NAME ezwindow-example-typecheck
         COMMAND $<TARGET_FILE:nimple-basic> --check "${CMAKE_CURRENT_SOURCE_DIR}/examples/EasyWindowHello.nb")
+    add_test(NAME easywindow-window-requires-explicit-void
+        COMMAND $<TARGET_FILE:nimple-basic> --check "${CMAKE_CURRENT_SOURCE_DIR}/tests/check-easywindow-window-requires-void.nb")
+    set_tests_properties(easywindow-window-requires-explicit-void PROPERTIES WILL_FAIL TRUE)
     add_test(NAME ezwindow-module-from-standard-library-folder
         COMMAND $<TARGET_FILE:nimple-basic> --check "${CMAKE_CURRENT_SOURCE_DIR}/tests/check-ezwindow-builtin.nb")
     add_test(NAME ezwindow-relative-layout-api
