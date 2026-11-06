@@ -2547,16 +2547,21 @@ namespace nimple {
             auto it = program.methods.find(name);
             if (it == program.methods.end()) throw NimpleError("NB-R1021", line, 1, "找不到方法：" + name);
             const Method& method = it->second;
-            if (!method.paramsUnknown && method.params.size() != args.size()) throw NimpleError("NB-R1022", line, 1, "方法 " + name + " 需要 " + std::to_string(method.params.size()) + " 个参数，实际收到 " + std::to_string(args.size()) + " 个。");
             Environment local(&globals);
-            for (std::size_t i = 0; !method.paramsUnknown && i < args.size(); ++i) {
-                Value v = args[i];
-                if (!method.params[i].type.empty()) {
-                    auto converted = convertValue(v, method.params[i].type);
-                    if (!converted) throw NimpleError("NB-R1023", line, 1, "参数 " + method.params[i].name + " 无法转换为 " + method.params[i].type + "。");
-                    v = *converted;
+            if (!method.paramsUnknown) {
+                std::size_t requiredParameters = 0;
+                for (const auto& parameter : method.params) if (!parameter.defaultValue) ++requiredParameters;
+                if (args.size() < requiredParameters || args.size() > method.params.size())
+                    throw NimpleError("NB-R1022", line, 1, "方法 " + name + " 需要 " + std::to_string(requiredParameters) + ".." + std::to_string(method.params.size()) + " 个参数，实际收到 " + std::to_string(args.size()) + " 个。");
+                for (std::size_t i = 0; i < method.params.size(); ++i) {
+                    Value v = i < args.size() ? args[i] : *method.params[i].defaultValue;
+                    if (!method.params[i].type.empty()) {
+                        auto converted = convertValue(v, method.params[i].type);
+                        if (!converted) throw NimpleError("NB-R1023", line, 1, "参数 " + method.params[i].name + " 无法转换为 " + method.params[i].type + "。");
+                        v = *converted;
+                    }
+                    local.declare(method.params[i].name, v, line);
                 }
-                local.declare(method.params[i].name, v, line);
             }
             ++callDepth;
             ExecResult result;
