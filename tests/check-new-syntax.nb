@@ -1,0 +1,19 @@
+module MathOps {
+    int Add(int left, int right) {
+        return left + right
+    }
+}
+
+void NoParameters {
+    return
+}
+
+void UnknownParameters() {
+    return
+}
+
+int Main(void) {
+    var new result = MathOps::Add(20, 22)
+    if result == 42 then return result - 42
+    return 1
+}

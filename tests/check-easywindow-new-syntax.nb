@@ -1,0 +1,13 @@
+include <EasyWindow>
+
+void Window(void) {
+    var new (auto)App = EasyWindow.Window
+    App.Title = "EasyWindow syntax test"
+    App.Geometry("520x320")
+}
+
+module Controls {
+    void Label(void) {
+        var new (auto)Greeting = EasyWindow.Label
+    }
+}

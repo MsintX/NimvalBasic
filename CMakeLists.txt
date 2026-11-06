@@ -307,3 +307,10 @@ if(BUILD_TESTING)
             "-DEXPECTED=missingFunctionForRegression 未定义。"
             -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/assert-diagnostic.cmake)
 endif()
+
+if(BUILD_TESTING)
+    add_test(NAME nimval-brace-and-parameter-syntax
+        COMMAND $<TARGET_FILE:nimple-basic> --check "${CMAKE_CURRENT_SOURCE_DIR}/tests/check-new-syntax.nb")
+    add_test(NAME easywindow-include-and-declarative-braces
+        COMMAND $<TARGET_FILE:nimple-basic> --check "${CMAKE_CURRENT_SOURCE_DIR}/tests/check-easywindow-new-syntax.nb")
+endif()
