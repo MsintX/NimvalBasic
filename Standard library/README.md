@@ -1,15 +1,7 @@
-# Nimple Basic standard library
+# Nimval Basic 标准库
 
-The standard library keeps native I/O statements in three independently introducible modules:
+标准库通过 `statement` 声明解释器内置原生语句实现。`input` 定义 `sys::read`，`output` 定义 `sys::print`、`sys::printf` 和 `sys::printfn`，`iosystem` 定义以上全部语句。
 
-- `input` defines `sys::read`.
-- `output` defines `sys::print`, `sys::printf`, and `sys::printfn`.
-- `iosystem` defines all four statements above.
+`include` 是导入关键词，取代旧的 `const` 导入写法，例如 `include <EasyWindow>`、`include "iosystem"` 和 `include namespace sys`。`statement` 仍用于声明原生语句实现或引入首文件。
 
-Use `statement "input"`, `statement "output"`, or `statement "iosystem"` before source statements.
-
-## Statement definitions vs. `const`
-
-A line such as `statement sys::read` is a native-statement definition declaration. It registers the corresponding built-in parser/runtime implementation for use by the source that imports the module with `statement "module"`. These are not functions and do not generate function-call wrappers. Their runtime behavior remains the native implementation in the interpreter, preserving `read(type) <- System` and `print`/`printf`/`printfn ... -> System` syntax.
-
-`const` remains a separate source-file directive. It controls whether an explicitly imported native statement may omit its `sys::` prefix; it does not define or implement a statement. Without `const`, use the qualified `sys::` form.
+EasyWindow 的无参数函数声明统一使用 `(void)`，例如 `void mainloop(void) { ... }`。

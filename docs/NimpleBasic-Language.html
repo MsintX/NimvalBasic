@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Nimple Basic 语言使用文档：程序结构、类型、方法、输出、预处理指令、静态检查与运行。">
-<title>Nimple Basic 语言文档</title><style>
+<meta name="description" content="Nimval Basic 语言使用文档：程序结构、类型、方法、输出、预处理指令、静态检查与运行。">
+<title>Nimval Basic 语言文档</title><style>
 :root{color-scheme:light dark;--bg:#f7f8fb;--panel:#fff;--ink:#1d2433;--muted:#596579;--line:#dce2eb;--accent:#315efb;--code:#111827;--codeink:#e5edf8;--soft:#edf2ff}
 @media(prefers-color-scheme:dark){:root{--bg:#10141c;--panel:#181e29;--ink:#edf2fa;--muted:#a8b3c6;--line:#30394a;--accent:#8ba4ff;--code:#090c12;--codeink:#e5edf8;--soft:#202a43}}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 system-ui,-apple-system,"Segoe UI",sans-serif}
@@ -22,22 +22,22 @@ a{color:var(--accent)}.footer{padding:0 22px 36px;color:var(--muted);font-size:.
 @media(max-width:760px){.layout{grid-template-columns:1fr}nav{position:static}header{padding-top:38px}.card{padding:19px}table{display:block;overflow-x:auto}}
 </style></head>
 <body>
-<header><div class="wrap"><div class="eyebrow">Nimple Basic Native Runtime · 0.1.0</div><h1>Nimple Basic 语言文档</h1><p>从第一个程序开始，了解 Nimple Basic 的程序结构、静态类型、方法、输出格式、内置模块与命令行工具。</p><span class="pill">C++14 兼容原生解释器</span><span class="pill">运行前静态检查</span><span class="pill">标准库文件夹加载</span></div></header>
+<header><div class="wrap"><div class="eyebrow">Nimval Basic Native Runtime · 0.1.0</div><h1>Nimval Basic 语言文档</h1><p>从第一个程序开始，了解 Nimval Basic 的程序结构、静态类型、方法、输出格式、内置模块与命令行工具。</p><span class="pill">C++14 兼容原生解释器</span><span class="pill">运行前静态检查</span><span class="pill">标准库文件夹加载</span></div></header>
 <main><div class="layout">
 <nav><strong>目录</strong>
 <a href="#start">快速开始</a><a href="#structure">程序结构</a><a href="#types">类型与变量</a><a href="#methods">方法与返回</a><a href="#flow">流程控制</a><a href="#operators">表达式与运算符</a><a href="#output">输出</a><a href="#modules">模块与预处理</a><a href="#math">内置 Math</a><a href="#checking">静态检查</a><a href="#cli">命令行</a><a href="#limits">当前边界</a></nav>
 <article>
 <section class="card" id="start"><h2>快速开始</h2><p>将代码保存为 <code>Hello.nb</code>：</p>
-<pre><code class="language-nb">const namespace sys
+<pre><code class="language-nb">include namespace sys
 
 int Main:
-    printfn "Hello, Nimple Basic!" -> System
+    printfn "Hello, Nimval Basic!" -> System
     return 0
 end</code></pre>
 <p>运行程序：</p><pre><code>nimple-basic Hello.nb</code></pre>
 <p>只检查、不执行：</p><pre><code>nimple-basic --check Hello.nb</code></pre>
-<div class="note">Nimple Basic 会先进行预处理、词法分析、语法分析和整程序静态类型检查。检查失败时，程序不会开始执行，也不会产生输出副作用。</div></section>
-<section class="card" id="structure"><h2>程序结构</h2><p>方法由返回类型、方法名、可选参数列表、冒号、方法体和 <code>end</code> 组成。普通程序入口为 <code>Main</code>；EzWindow 程序也可以使用无参数的 <code>void Window</code>。</p>
+<div class="note">Nimval Basic 会先进行预处理、词法分析、语法分析和整程序静态类型检查。检查失败时，程序不会开始执行，也不会产生输出副作用。</div></section>
+<section class="card" id="structure"><h2>程序结构</h2><p>方法由返回类型、方法名、可选参数列表、冒号、方法体和 <code>end</code> 组成。普通程序入口为 <code>Main</code>；EasyWindow 程序也可以使用无参数的 <code>void Window</code>。</p>
 <pre><code class="language-nb">int Main:
     return 0
 end</code></pre>
@@ -92,7 +92,7 @@ end</code></pre>
 <table><thead><tr><th>类别</th><th>示例</th></tr></thead><tbody><tr><td>算术</td><td><code>+</code>、<code>-</code>、<code>*</code>、<code>/</code>、<code>%</code></td></tr><tr><td>比较</td><td><code>==</code>、<code>!=</code>、<code>&lt;</code>、<code>&lt;=</code>、<code>&gt;</code>、<code>&gt;=</code></td></tr><tr><td>逻辑</td><td><code>&amp;&amp;</code>、<code>||</code>、<code>!</code></td></tr><tr><td>字符串拼接</td><td><code>"Hello, " + name</code></td></tr></tbody></table>
 <p>具体支持范围以当前解释器实现为准；未实现的语法会明确报错。</p></section>
 <section class="card" id="output"><h2>控制台与文件输出</h2><p>内置输入输出语句属于 <code>sys</code> 命名空间，必须使用 <code>sys::</code> 前缀，或通过源文件中的 <code>const</code> 显式导入。<code>statement "input"</code>、<code>statement "output"</code> 和 <code>statement "iosystem"</code> 分别引入输入、输出和组合语句包；它们不会创建函数。</p>
-<pre><code class="language-nb">const namespace sys
+<pre><code class="language-nb">include namespace sys
 
 int Main:
     print "Hello" -> System
@@ -104,22 +104,22 @@ end</code></pre>
 <p>输入通过表达式 <code>sys::read</code> 或 <code>sys::read(type)</code> 读取标准输入；可用类型包括 <code>int</code>、<code>float</code>、<code>double</code>、<code>bool</code>、<code>string</code> 和 <code>char</code>。输出目标可为 <code>System</code>，也可为文件名、相对路径或绝对路径。相对路径以当前 <code>.nb</code> 文件所在目录为基准；父目录不存在时会自动创建，文件采用追加写入。</p>
 <h3>格式占位符</h3><table><thead><tr><th>占位符</th><th>期望参数类型</th></tr></thead><tbody><tr><td><code>%s</code></td><td><code>string</code></td></tr><tr><td><code>%d</code></td><td><code>int</code></td></tr><tr><td><code>%f</code></td><td><code>float</code></td></tr><tr><td><code>%c</code></td><td><code>char</code></td></tr></tbody></table>
 <div class="note">格式串必须是字符串字面量，以便解释器在执行前验证占位符数量和参数类型。缺少输出目标或未使用 sys 前缀/导入对应名称都会报错。三个输入输出标准库文件只引入内置语句，不定义函数包装。</div></section>
-<section class="card" id="modules"><h2>模块与预处理指令</h2><h3><code>statement</code></h3><p><code>statement "模块名"</code> 用于引进内置标准库模块，必须放在普通代码语句之前；旧关键词 <code>introduce</code> 已移除。标准库文件内部的 <code>statement sys::name</code> 用于声明原生语句定义：</p><pre><code class="language-nb">const namespace sys
-statement "Math"</code></pre><p>标准库模块包括 <code>Math</code>、<code>EzWindow</code>、<code>input</code>、<code>output</code> 和 <code>iosystem</code>，从解释器可执行文件同级的 <code>Standard library</code> 文件夹读取无扩展名文件。</p>
+<section class="card" id="modules"><h2>模块与预处理指令</h2><h3><code>statement</code></h3><p><code>statement "模块名"</code> 用于引进内置标准库模块，必须放在普通代码语句之前；旧关键词 <code>introduce</code> 已移除。标准库文件内部的 <code>statement sys::name</code> 用于声明原生语句定义：</p><pre><code class="language-nb">include namespace sys
+statement "Math"</code></pre><p>标准库模块包括 <code>Math</code>、<code>EasyWindow</code>、<code>input</code>、<code>output</code> 和 <code>iosystem</code>，从解释器可执行文件同级的 <code>Standard library</code> 文件夹读取无扩展名文件。</p>
 <h3><code>copy</code></h3><p><code>copy "Math"</code> 会从解释器同级的 <code>Standard library/Math</code> 文件读取并展开源码。显式相对路径或绝对路径会读取对应文件并将内容展开到当前源码中。请只对可信文件使用文件路径形式的 <code>copy</code>。</p>
 <div class="note">添加或修改标准库时，直接编辑解释器同级 <code>Standard library</code> 文件夹中的无扩展名文件。发布时必须将整个文件夹与解释器放在一起。</div></section>
-<section class="card" id="nimple-modules"><h2>Nimple Basic 0.1.0：作用域与文件类型</h2><p>作用域解析符 <code>::</code> 支持模块方法与全局方法访问：</p><pre><code class="language-nb">module MathOps:
+<section class="card" id="nimple-modules"><h2>Nimval Basic 0.1.0：作用域与文件类型</h2><p>作用域解析符 <code>::</code> 支持模块方法与全局方法访问：</p><pre><code class="language-nb">module MathOps:
     int twice with value as int:
         return value * 2
     end
 end
 int Main:
     return MathOps::twice(::globalValue())
-end</code></pre><p><code>.nb</code> 是源文件，<code>.nbf</code> 是首文件，<code>.nbt</code> 是可选尾文件。打开没有 <code>opening</code> 方法的首文件时会发出 NB-W2101 并按源码复制方式展开。尾文件采用 <code>key = value</code> 格式，目前会校验但尚不会自动应用到运行时设置。</p></section>
+end</code></pre><p><code>.nb</code> 是源文件，<code>.nbf</code> 是首文件，<code>.nbt</code> 是可选尾文件。打开没有 <code>including</code> 方法的首文件时会发出 NB-W2101 并按源码复制方式展开。尾文件采用 <code>key = value</code> 格式，目前会校验但尚不会自动应用到运行时设置。</p></section>
 <section class="card" id="math"><h2>内置 Math</h2><p>Math 提供整数辅助方法：</p>
 <table><thead><tr><th>方法</th><th>签名</th><th>说明</th></tr></thead><tbody><tr><td><code>absInt</code></td><td><code>int absInt with value as int</code></td><td>返回整数绝对值</td></tr><tr><td><code>maxInt</code></td><td><code>int maxInt with a as int b as int</code></td><td>返回两个整数中的较大值</td></tr><tr><td><code>minInt</code></td><td><code>int minInt with a as int b as int</code></td><td>返回两个整数中的较小值</td></tr></tbody></table>
 <pre><code class="language-nb">statement "Math"
-const namespace sys
+include namespace sys
 
 int Main:
     printfn "max=%d" maxInt(7, 12) -> System
@@ -129,6 +129,6 @@ end</code></pre></section>
 <section class="card" id="cli"><h2>命令行</h2><table><thead><tr><th>命令</th><th>说明</th></tr></thead><tbody><tr><td><code>nimple-basic file.nb</code></td><td>检查后运行源码</td></tr><tr><td><code>nimple-basic --check file.nb</code></td><td>只做静态检查</td></tr><tr><td><code>nimple-basic --check-stdin file.nb</code></td><td>从标准输入读取源码，并以指定文件作为上下文</td></tr><tr><td><code>nimple-basic --version</code></td><td>显示版本信息</td></tr></tbody></table>
 <h3>构建解释器</h3><pre><code>cmake -S . -B build
 cmake --build build --config Release</code></pre><p>Windows Visual Studio 用户可以打开 <code>NimpleBasic.sln</code> 构建。解释器使用 C++14。</p></section>
-<section class="card" id="limits"><h2>当前边界与说明</h2><ul><li>本文档对应 Nimple Basic 0.1.0 的当前实现。</li><li><code>class</code> 是已弃用的 <code>module</code> 兼容别名，会产生 NB-W2090 警告；可用 <code>suppress NB-W2090</code> 抑制。</li><li><code>module</code> 是静态命名空间，不是可实例化的对象类型；继承、接口/trait、对象生命周期、new/delete 和嵌套类/枚举尚未实现。</li><li><code>copy</code> 是源码级展开，部分错误位置显示展开后源码中的行列，未必映射回原包含文件。</li><li>所有标准库文件（包括 input、output、iosystem 语句包）都必须随解释器一起分发，并放在可执行文件同级的 <code>Standard library</code> 文件夹中。</li></ul></section>
-</article></div></main><div class="footer">Nimple Basic Native Runtime · 语言文档 · 建议与实际版本源码、示例和测试一起使用。</div>
+<section class="card" id="limits"><h2>当前边界与说明</h2><ul><li>本文档对应 Nimval Basic 0.1.0 的当前实现。</li><li><code>class</code> 是已弃用的 <code>module</code> 兼容别名，会产生 NB-W2090 警告；可用 <code>suppress NB-W2090</code> 抑制。</li><li><code>module</code> 是静态命名空间，不是可实例化的对象类型；继承、接口/trait、对象生命周期、new/delete 和嵌套类/枚举尚未实现。</li><li><code>copy</code> 是源码级展开，部分错误位置显示展开后源码中的行列，未必映射回原包含文件。</li><li>所有标准库文件（包括 input、output、iosystem 语句包）都必须随解释器一起分发，并放在可执行文件同级的 <code>Standard library</code> 文件夹中。</li></ul></section>
+</article></div></main><div class="footer">Nimval Basic Native Runtime · 语言文档 · 建议与实际版本源码、示例和测试一起使用。</div>
 </body></html>
