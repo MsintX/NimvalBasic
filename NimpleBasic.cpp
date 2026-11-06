@@ -1264,7 +1264,7 @@ namespace nimple {
     };
 
     struct Parameter { std::string name; std::string type; optional<Value> defaultValue; };
-    struct Method { std::string name; std::string returnType; std::vector<Parameter> params; std::vector<std::unique_ptr<Stmt>> body; int line{ 1 }; };
+    struct Method { std::string name; std::string returnType; std::vector<Parameter> params; std::vector<std::unique_ptr<Stmt>> body; int line{ 1 }; bool paramsUnknown{ false }; };
 
     struct ExecResult {
         enum class Signal { Normal, Return, Break, Next } signal;
@@ -1352,7 +1352,7 @@ namespace nimple {
             if (peek(n + 1).kind != Token::Kind::Identifier) return false;
             n += 2;
             while (peek(n).text == "::" && peek(n + 1).kind == Token::Kind::Identifier) n += 2;
-            if (peek(n).text == ":") return true;
+            if (peek(n).text == "{" || peek(n).text == "(" || peek(n).text == ":") return true;
             if (peek(n).text == "with") {
                 while (peek(n).kind != Token::Kind::End && peek(n).kind != Token::Kind::Newline) {
                     if (peek(n).text == ":") return true;
@@ -1368,7 +1368,33 @@ namespace nimple {
             std::string qualifiedMethodName = name.text;
             while (matchText("::")) qualifiedMethodName += "::" + expectKind(Token::Kind::Identifier, "方法作用域解析符后缺少方法名。").text;
             Method method; method.name = qualifiedMethodName; method.returnType = type.text; method.line = name.line;
-            if (matchText("with")) {
+            if (matchText("(")) {
+                if (matchText(")")) {
+                    method.paramsUnknown = true;
+                } else if (matchText("void")) {
+                    expectText(")", "(void) 后缺少右括号。");
+                } else {
+                    bool sawDefaultParameter = false;
+                    do {
+                        Token paramType = expectKind(Token::Kind::Identifier, "参数声明缺少类型。");
+                        Token paramName = expectKind(Token::Kind::Identifier, "参数声明缺少名称。");
+                        Parameter parameter{ paramName.text, paramType.text, nullopt };
+                        if (matchText("=")) {
+                            sawDefaultParameter = true;
+                            auto defaultExpression = parseExpression();
+                            if (defaultExpression->kind != Expr::Kind::Literal)
+                                fail(paramName, "NB2002", "当前默认参数只允许使用字面量。");
+                            if (paramType.text != "auto" && defaultExpression->literal.typeName() != paramType.text)
+                                fail(paramName, "NB2003", "参数默认值类型必须与声明类型一致。");
+                            parameter.defaultValue = defaultExpression->literal;
+                        } else if (sawDefaultParameter) {
+                            fail(paramName, "NB2004", "带默认值的参数必须位于参数列表末尾。");
+                        }
+                        method.params.push_back(std::move(parameter));
+                    } while (matchText(","));
+                    expectText(")", "方法参数列表缺少右括号。");
+                }
+            } else if (matchText("with")) {
                 bool sawDefaultParameter = false;
                 while (!isText(":") && !check(Token::Kind::End) && !check(Token::Kind::Newline)) {
                     Token paramName = expectKind(Token::Kind::Identifier, "参数声明缺少名称。");
@@ -1388,20 +1414,27 @@ namespace nimple {
                     method.params.push_back(std::move(parameter));
                 }
             }
-            expectText(":", "方法体需要使用冒号开始。");
-            skipSeparators();
-            method.body = parseBlock({ "end" });
-            expectText("end", "方法体缺少 end。");
+            if (matchText("{")) {
+                skipSeparators();
+                method.body = parseBlock({ "}" });
+                expectText("}", "方法体缺少右大括号。");
+            } else {
+                expectText(":", "方法体需要使用 { 开始。");
+                skipSeparators();
+                method.body = parseBlock({ "end" });
+                expectText("end", "方法体缺少 end。");
+            }
             return method;
         }
         void parseModule(Program& program) {
             Token moduleToken = advance();
             Token moduleName = expectKind(Token::Kind::Identifier, "module 后缺少模块名称。");
-            expectText(":", "module 声明需要以冒号结束。");
+            const bool braceBlock = matchText("{");
+            if (!braceBlock) expectText(":", "module 声明需要使用 { 开始。");
             skipSeparators();
             const std::string previousNamespace = currentNamespace;
             currentNamespace = previousNamespace.empty() ? moduleName.text : previousNamespace + "::" + moduleName.text;
-            while (!check(Token::Kind::End) && !isText("end")) {
+            while (!check(Token::Kind::End) && !(braceBlock ? isText("}") : isText("end"))) {
                 const std::size_t before = current;
                 try {
                     if (isText("module")) parseModule(program);
@@ -1422,7 +1455,8 @@ namespace nimple {
                 if (current == before && !check(Token::Kind::End)) advance();
                 skipSeparators();
             }
-            expectText("end", "module 缺少 end。");
+            if (braceBlock) expectText("}", "module 缺少右大括号。");
+            else expectText("end", "module 缺少 end。");
             currentNamespace = previousNamespace;
         }
 
@@ -1548,26 +1582,86 @@ namespace nimple {
         std::unique_ptr<Stmt> parseIf() {
             Token start = advance(); auto s = std::make_unique<Stmt>(); s->kind = Stmt::Kind::If; s->line = start.line;
             s->branchConditions.push_back(parseExpression());
-            expectText("then", "if 条件后需要 then。"); skipSeparators();
-            s->branchBodies.push_back(parseBlock({ "else", "end" }));
-            while (matchText("else")) {
+            bool braceBlock = matchText("{");
+            bool singleLine = false;
+            if (!braceBlock) {
+                if (!matchText("then")) fail(peek(), "NB2001", "if 条件后需要 { 或 then。");
+                singleLine = !check(Token::Kind::Newline);
+            }
+            if (braceBlock) {
+                skipSeparators();
+                s->branchBodies.push_back(parseBlock({ "else", "}" }));
+            } else if (singleLine) {
+                std::vector<std::unique_ptr<Stmt>> body;
+                body.push_back(parseStatement());
+                s->branchBodies.push_back(std::move(body));
+            } else {
+                skipSeparators();
+                s->branchBodies.push_back(parseBlock({ "else", "end" }));
+            }
+            while (true) {
+                while (check(Token::Kind::Newline)) advance();
+                if (!matchText("else")) break;
                 if (matchText("if")) {
                     s->branchConditions.push_back(parseExpression());
-                    expectText("then", "else if 条件后需要 then。"); skipSeparators();
-                    s->branchBodies.push_back(parseBlock({ "else", "end" }));
-                }
-                else {
+                    const bool elseBrace = matchText("{");
+                    if (!elseBrace && !matchText("then")) fail(peek(), "NB2001", "else if 条件后需要 { 或 then。");
+                    const bool elseSingle = !elseBrace && !check(Token::Kind::Newline);
+                    if (elseBrace) {
+                        skipSeparators();
+                        s->branchBodies.push_back(parseBlock({ "else", "}" }));
+                        expectText("}", "else if 代码块缺少右大括号。");
+                    } else if (elseSingle) {
+                        std::vector<std::unique_ptr<Stmt>> body;
+                        body.push_back(parseStatement());
+                        s->branchBodies.push_back(std::move(body));
+                    } else {
+                        skipSeparators();
+                        s->branchBodies.push_back(parseBlock({ "else", "end" }));
+                    }
+                } else {
                     s->hasElse = true;
-                    skipSeparators(); s->elseBody = parseBlock({ "end" }); break;
+                    const bool elseBrace = matchText("{");
+                    if (!elseBrace && !matchText("then")) {
+                        if (!braceBlock) fail(peek(), "NB2001", "else 后需要 { 或 then。");
+                        fail(peek(), "NB2001", "else 后需要 {。");
+                    }
+                    const bool elseSingle = !elseBrace && !check(Token::Kind::Newline);
+                    if (elseBrace) {
+                        skipSeparators();
+                        s->elseBody = parseBlock({ "}" });
+                        expectText("}", "else 代码块缺少右大括号。");
+                    } else if (elseSingle) {
+                        s->elseBody.push_back(parseStatement());
+                    } else {
+                        skipSeparators();
+                        s->elseBody = parseBlock({ "end" });
+                    }
+                    break;
                 }
             }
-            expectText("end", "if 代码块缺少 end。");
+            if (braceBlock) expectText("}", "if 代码块缺少右大括号。");
+            else if (!singleLine) expectText("end", "if 代码块缺少 end。");
             return s;
         }
         std::unique_ptr<Stmt> parseFor() {
             Token start = advance(); auto s = std::make_unique<Stmt>(); s->kind = Stmt::Kind::For; s->line = start.line;
-            s->expression = parseExpression(); expectText("then", "for 条件后需要 then。"); skipSeparators();
-            s->body = parseBlock({ "end" }); expectText("end", "for 代码块缺少 end。"); return s;
+            s->expression = parseExpression();
+            const bool braceBlock = matchText("{");
+            if (braceBlock) {
+                skipSeparators();
+                s->body = parseBlock({ "}" });
+                expectText("}", "for 代码块缺少右大括号。");
+            } else {
+                expectText("then", "for 条件后需要 { 或 then。");
+                if (!check(Token::Kind::Newline)) s->body.push_back(parseStatement());
+                else {
+                    skipSeparators();
+                    s->body = parseBlock({ "end" });
+                    expectText("end", "for 代码块缺少 end。");
+                }
+            }
+            return s;
         }
         std::unique_ptr<Stmt> parseReturn() {
             Token start = advance(); auto s = std::make_unique<Stmt>(); s->kind = Stmt::Kind::Return; s->line = start.line;
@@ -1802,9 +1896,9 @@ namespace nimple {
                         scopes.back().emplace(param.name, Symbol{ param.type.empty() || param.type == "auto" ? "any" : param.type, true, !param.type.empty() && param.type != "auto" });
                 }
                 const bool canReachEnd = checkBlock(method.body, false);
-                const bool isOpeningHook = method.name == "opening" ||
-                    (method.name.size() > 9 && method.name.compare(method.name.size() - 9, 9, "::opening") == 0);
-                if (method.returnType != "void" && canReachEnd && !isOpeningHook)
+                const bool isIncludingHook = method.name == "including" ||
+                    (method.name.size() > 10 && method.name.compare(method.name.size() - 10, 10, "::including") == 0);
+                if (method.returnType != "void" && canReachEnd && !isIncludingHook)
                     error(method.line, "NB-T1006", "非 void 方法 " + method.name + " 存在未返回值的执行路径。");
                 currentMethod = nullptr;
             }
