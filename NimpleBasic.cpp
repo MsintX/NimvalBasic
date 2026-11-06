@@ -2016,7 +2016,7 @@ namespace nimple {
                 return symbol->type;
             }
             auto method = program.methods.find(name);
-            if (method != program.methods.end() && method->second.params.empty()) return method->second.returnType;
+            if (method != program.methods.end() && method->second.params.empty() && !method->second.paramsUnknown) return method->second.returnType;
             error(line, "NB-T1012", "未声明的变量或无参数方法：“" + name + "”。");
             return "any";
         }
@@ -2151,9 +2151,9 @@ namespace nimple {
                             error(expr.line, "NB-T1051", "EasyWindow 事件回调方法未声明：“" + callbackName + "”。");
                         } else {
                             const std::size_t requiredParams = expr.text == "onClick" ? 0u : 1u;
-                            if (callback->second.params.size() != requiredParams)
+                            if (!callback->second.paramsUnknown && callback->second.params.size() != requiredParams)
                                 error(expr.line, "NB-T1052", "EasyWindow 的 " + expr.text + " 回调“" + callbackName + "”必须接收 " + std::to_string(requiredParams) + " 个参数。");
-                            else if (expr.text == "onChange" && callback->second.params[0].type != "string")
+                            else if (!callback->second.paramsUnknown && expr.text == "onChange" && callback->second.params[0].type != "string")
                                 error(expr.line, "NB-T1053", "onChange 回调的唯一参数必须是 string。");
                             if (callback->second.returnType != "void")
                                 error(expr.line, "NB-T1054", "EasyWindow 事件回调方法必须返回 void。");
@@ -2165,18 +2165,20 @@ namespace nimple {
                     error(expr.line, "NB-T1025", expr.text + " 未定义。");
                     return "any";
                 }
-                std::size_t requiredParameters = 0;
-                for (const auto& parameter : method->second.params) if (!parameter.defaultValue) ++requiredParameters;
-                if (argTypes.size() < requiredParameters || argTypes.size() > method->second.params.size()) {
-                    error(expr.line, "NB-T1026", "方法 " + expr.text + " 需要 " + std::to_string(requiredParameters) + ".." + std::to_string(method->second.params.size()) + " 个参数，实际收到 " + std::to_string(argTypes.size()) + " 个。");
-                }
-                const std::size_t count = std::min(argTypes.size(), method->second.params.size());
-                for (std::size_t i = 0; i < count; ++i) {
-                    const std::string& target = method->second.params[i].type;
-                    if (argTypes[i] == "void")
-                        error(expr.args[i]->line, "NB-T1027", "void 方法调用不能作为参数值传递。");
-                    else if (!target.empty() && target != "auto" && (!canImplicitConvertExpression(*expr.args[i], argTypes[i], target)))
-                        error(expr.args[i]->line, "NB-T1027", "方法 " + expr.text + " 的参数 " + method->second.params[i].name + " 需要 " + target + "，实际为 " + argTypes[i] + "。");
+                if (!method->second.paramsUnknown) {
+                    std::size_t requiredParameters = 0;
+                    for (const auto& parameter : method->second.params) if (!parameter.defaultValue) ++requiredParameters;
+                    if (argTypes.size() < requiredParameters || argTypes.size() > method->second.params.size()) {
+                        error(expr.line, "NB-T1026", "方法 " + expr.text + " 需要 " + std::to_string(requiredParameters) + ".." + std::to_string(method->second.params.size()) + " 个参数，实际收到 " + std::to_string(argTypes.size()) + " 个。");
+                    }
+                    const std::size_t count = std::min(argTypes.size(), method->second.params.size());
+                    for (std::size_t i = 0; i < count; ++i) {
+                        const std::string& target = method->second.params[i].type;
+                        if (argTypes[i] == "void")
+                            error(expr.args[i]->line, "NB-T1027", "void 方法调用不能作为参数值传递。");
+                        else if (!target.empty() && target != "auto" && (!canImplicitConvertExpression(*expr.args[i], argTypes[i], target)))
+                            error(expr.args[i]->line, "NB-T1027", "方法 " + expr.text + " 的参数 " + method->second.params[i].name + " 需要 " + target + "，实际为 " + argTypes[i] + "。");
+                    }
                 }
                 return method->second.returnType;
             }
@@ -2428,7 +2430,7 @@ namespace nimple {
             const bool useWindow = windowIt != program.methods.end();
             auto it = useWindow ? windowIt : program.methods.find("Main");
             if (it == program.methods.end()) throw NimpleError("NB-R1011", 1, 1, "找不到入口方法 Main 或 void Window。");
-            if (!it->second.params.empty()) throw NimpleError("NB-R1012", it->second.line, 1, "入口方法必须为无参数方法。");
+            if (!it->second.params.empty() || it->second.paramsUnknown) throw NimpleError("NB-R1012", it->second.line, 1, "入口方法必须明确声明为无参数方法。");
             if (useWindow && it->second.returnType != "void") throw NimpleError("NB-R1013", it->second.line, 1, "EasyWindow 入口 Window 必须返回 void。");
             Value result = call(useWindow ? "Window" : "Main", {}, it->second.line);
             if (useWindow || result.type == ValueType::Void || result.type == ValueType::NoThing) return 0;
@@ -2451,7 +2453,7 @@ namespace nimple {
         fs::path sourcePath() const { return fs::u8path(sourceFile); }
         bool hasZeroParameterMethod(const std::string& name) const {
             auto it = program.methods.find(name);
-            return it != program.methods.end() && it->second.params.empty();
+            return it != program.methods.end() && it->second.params.empty() && !it->second.paramsUnknown;
         }
         Value call(const std::string& name, const std::vector<Value>& args, int line) {
             if (callDepth >= 256) throw NimpleError("NB-R1020", line, 1, "方法调用超过最大递归深度 256。");
@@ -2537,9 +2539,9 @@ namespace nimple {
             auto it = program.methods.find(name);
             if (it == program.methods.end()) throw NimpleError("NB-R1021", line, 1, "找不到方法：" + name);
             const Method& method = it->second;
-            if (method.params.size() != args.size()) throw NimpleError("NB-R1022", line, 1, "方法 " + name + " 需要 " + std::to_string(method.params.size()) + " 个参数，实际收到 " + std::to_string(args.size()) + " 个。");
+            if (!method.paramsUnknown && method.params.size() != args.size()) throw NimpleError("NB-R1022", line, 1, "方法 " + name + " 需要 " + std::to_string(method.params.size()) + " 个参数，实际收到 " + std::to_string(args.size()) + " 个。");
             Environment local(&globals);
-            for (std::size_t i = 0; i < args.size(); ++i) {
+            for (std::size_t i = 0; !method.paramsUnknown && i < args.size(); ++i) {
                 Value v = args[i];
                 if (!method.params[i].type.empty()) {
                     auto converted = convertValue(v, method.params[i].type);
