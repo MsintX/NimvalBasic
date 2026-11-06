@@ -1601,8 +1601,12 @@ namespace nimple {
                 s->branchBodies.push_back(parseBlock({ "else", "end" }));
             }
             while (true) {
+                const std::size_t beforeElseSeparators = current;
                 while (check(Token::Kind::Newline)) advance();
-                if (!matchText("else")) break;
+                if (!matchText("else")) {
+                    current = beforeElseSeparators;
+                    break;
+                }
                 if (matchText("if")) {
                     s->branchConditions.push_back(parseExpression());
                     const bool elseBrace = matchText("{");
