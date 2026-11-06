@@ -1,6 +1,6 @@
-statement "EzWindow"
+include <EasyWindow>
 
-var new root = window("EzWindow controls", 640, 520)
+var new root = window("EasyWindow controls", 640, 520)
 var new heading = label(root, "More native controls")
 var new password = passwordEntry(root, "Password")
 var new choice = comboBox(root, "Small\nMedium\nLarge")
@@ -11,23 +11,23 @@ var new progress = progressBar(root, 0, 100)
 var new status = label(root, "Ready")
 var new applyButton = button(root, "Apply")
 
-void volumeChanged with value as string:
+void volumeChanged(string value) {
     setValue(progress, value as int)
     setText(status, "Slider value: " + value)
     return
-end
+}
 
-void choiceChanged with value as string:
+void choiceChanged(string value) {
     setText(status, "Selected: " + value)
     return
-end
+}
 
-void applyChanges:
+void applyChanges(void) {
     setText(status, "Size: " + getText(choice) + ", volume: " + getValue(volume) as string)
     return
-end
+}
 
-int Main:
+int Main(void) {
     setRelativeBounds(heading, 4, 3, 92, 7)
     setRelativeBounds(password, 4, 13, 92, 7)
     setRelativeBounds(choice, 4, 23, 92, 7)
@@ -43,4 +43,4 @@ int Main:
     onClick(applyButton, "applyChanges")
     mainloop()
     return 0
-end
+}

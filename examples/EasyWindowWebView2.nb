@@ -1,18 +1,18 @@
-statement "EzWindow"
+include <EasyWindow>
 
-var new root = window("Nimple WebView2", 1000, 700)
+var new root = window("Nimval WebView2", 1000, 700)
 var new browser = webView(root, "https://example.com")
 var new localPageButton = button(root, "Show local HTML")
 
-void showLocalPage:
-    webViewSetHtml(browser, "<html><body style='font-family: sans-serif'><h1>Hello from Nimple</h1><p>This page is rendered by Microsoft Edge WebView2.</p></body></html>")
+void showLocalPage(void) {
+    webViewSetHtml(browser, "<html><body style='font-family: sans-serif'><h1>Hello from Nimval Basic</h1><p>This page is rendered by Microsoft Edge WebView2.</p></body></html>")
     return
-end
+}
 
-int Main:
+int Main(void) {
     setRelativeBounds(browser, 0, 0, 100, 90)
     setRelativeBounds(localPageButton, 0, 91, 100, 8)
     onClick(localPageButton, "showLocalPage")
     mainloop()
     return 0
-end
+}

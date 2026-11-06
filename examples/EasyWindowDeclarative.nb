@@ -1,0 +1,29 @@
+include <EasyWindow>
+void Window(void) {
+    var new (auto)App = EasyWindow.Window
+    App.Title = "Declarative controls"
+    App.Geometry("640x480")
+    App.Style = "styles/app.css"
+}
+module Controls {
+    void Label(void) {
+        var new (auto)Status = EasyWindow.Label
+        loction(%, 5, 90, 5, 5)
+        setText(Status, "Ready")
+    }
+    void Button(void) {
+        var new (auto)RunButton = EasyWindow.Button
+        loction(%, 15, 75, 5, 5)
+        setText(RunButton, "Run")
+    }
+    void Entry(void) {
+        var new (auto)NameInput = EasyWindow.Entry
+        loction(%, 25, 65, 5, 5)
+        size(px, 360, 36)
+    }
+    void PasswordEntry(void) {
+        var new (auto)PasswordInput = EasyWindow.PasswordEntry
+        loction(px, 110, 20, 5, 5)
+        size(px, 360, 36)
+    }
+}

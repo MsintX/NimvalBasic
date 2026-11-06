@@ -1,17 +1,23 @@
 include <EasyWindow>
 
-void Window(void) {
-    var new (auto)App = EasyWindow.Window
-    App.Title = "Hello, EasyWindow"
-    App.Geometry("520x320")
+var new root = window("Hello from Nimval Basic", 520, 320)
+var new prompt = label(root, "Your name:")
+var new name = entry(root, "Type your name")
+var new greetButton = button(root, "Say hello")
+var new result = label(root, "Ready.")
+
+void greet(void) {
+    setText(result, "Hello, " + getText(name) + "!")
+    return
 }
 
-module Controls {
-    void Label(void) {
-        var new (auto)Greeting = EasyWindow.Label
-    }
-
-    void Button(void) {
-        var new (auto)Submit = EasyWindow.Button
-    }
+int Main(void) {
+    pack(prompt)
+    pack(name)
+    pack(greetButton)
+    pack(result)
+    onClick(greetButton, "greet")
+    show(root)
+    mainloop()
+    return 0
 }
