@@ -101,7 +101,7 @@ static bool environmentVariableEquals(const char* name, const std::string& expec
     return value.has_value() && *value == expected;
 }
 
-// EzWindow platform-native GUI backend. Windows uses Win32 directly; no third-party GUI toolkit is required.
+// EasyWindow platform-native GUI backend. Windows uses Win32 directly; no third-party GUI toolkit is required.
 namespace ezwindow {
 #if defined(_WIN32)
     static std::vector<std::string> splitItems(const std::string& items) {
@@ -195,7 +195,7 @@ namespace ezwindow {
     static int g_nextId = 1;
     static bool g_classRegistered = false;
     static HINSTANCE g_instance = GetModuleHandleW(nullptr);
-    static constexpr wchar_t kWindowClass[] = L"NimpleEzWindowNativeClass";
+    static constexpr wchar_t kWindowClass[] = L"NimpleEasyWindowNativeClass";
 
     static std::wstring toWide(const std::string& value) {
         if (value.empty()) return {};
@@ -274,15 +274,15 @@ namespace ezwindow {
         }
     }
     static void validateBounds(int width, int height) {
-        if (width <= 0 || height <= 0) throw std::runtime_error("EzWindow：控件宽度和高度必须大于 0。");
+        if (width <= 0 || height <= 0) throw std::runtime_error("EasyWindow：控件宽度和高度必须大于 0。");
     }
     static void validateRelativeBounds(int x, int y, int width, int height) {
         if (x < 0 || x > 100 || y < 0 || y > 100 || width <= 0 || width > 100 || height <= 0 || height > 100 ||
             x + width > 100 || y + height > 100)
-            throw std::runtime_error("EzWindow：相对布局参数必须在 0..100 范围内，且 x+width、y+height 不能超过 100。");
+            throw std::runtime_error("EasyWindow：相对布局参数必须在 0..100 范围内，且 x+width、y+height 不能超过 100。");
     }
     static void applyLayoutForControl(NativeControl& c) {
-        if (c.kind == ControlKind::Window) throw std::runtime_error("EzWindow：布局 API 的目标必须是控件，不能是窗口。");
+        if (c.kind == ControlKind::Window) throw std::runtime_error("EasyWindow：布局 API 的目标必须是控件，不能是窗口。");
         layoutWindow(c.owner);
     }
     static LRESULT CALLBACK windowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -374,19 +374,19 @@ namespace ezwindow {
         wc.lpszClassName = kWindowClass;
         wc.hIcon = LoadIconW(nullptr, MAKEINTRESOURCEW(32512));
         if (!RegisterClassExW(&wc) && GetLastError() != ERROR_CLASS_ALREADY_EXISTS)
-            throw std::runtime_error("EzWindow：无法注册 Win32 窗口类。");
+            throw std::runtime_error("EasyWindow：无法注册 Win32 窗口类。");
         g_classRegistered = true;
     }
     static HWND findWindow(int id) {
         auto it = g_windows.find(id);
         if (it == g_windows.end() || !it->second || !IsWindow(it->second))
-            throw std::runtime_error("EzWindow：无效的窗口 ID " + std::to_string(id) + "。");
+            throw std::runtime_error("EasyWindow：无效的窗口 ID " + std::to_string(id) + "。");
         return it->second;
     }
     static NativeControl& findControl(int id) {
         auto it = g_controls.find(id);
         if (it == g_controls.end() || !it->second.native || !IsWindow(it->second.native))
-            throw std::runtime_error("EzWindow：无效的控件 ID " + std::to_string(id) + "。");
+            throw std::runtime_error("EasyWindow：无效的控件 ID " + std::to_string(id) + "。");
         return it->second;
     }
     static int addControl(int windowId, const std::string& text, ControlKind kind, int minimum = 0, int maximum = 100) {
@@ -417,13 +417,13 @@ namespace ezwindow {
         const std::wstring wideText = toWide(text);
         HWND native = CreateWindowExW(0, className, wideText.c_str(), style, 12, 12, 400, 28, parent,
             reinterpret_cast<HMENU>(static_cast<INT_PTR>(id)), g_instance, nullptr);
-        if (!native) throw std::runtime_error("EzWindow：创建原生控件失败。");
+        if (!native) throw std::runtime_error("EasyWindow：创建原生控件失败。");
         SendMessageW(native, WM_SETFONT, reinterpret_cast<WPARAM>(GetStockObject(DEFAULT_GUI_FONT)), TRUE);
         if (kind == ControlKind::PasswordEntry) SendMessageW(native, EM_SETPASSWORDCHAR, static_cast<WPARAM>(L'*'), 0);
         g_controls.emplace(id, NativeControl{ native, parent, kind, {}, {}, {}, minimum, maximum });
         g_controlOrder[parent].push_back(id);
         if (kind == ControlKind::Slider || kind == ControlKind::ProgressBar) {
-            if (maximum <= minimum) { DestroyWindow(native); g_controls.erase(id); g_controlOrder[parent].pop_back(); throw std::runtime_error("EzWindow：控件最大值必须大于最小值。"); }
+            if (maximum <= minimum) { DestroyWindow(native); g_controls.erase(id); g_controlOrder[parent].pop_back(); throw std::runtime_error("EasyWindow：控件最大值必须大于最小值。"); }
             if (kind == ControlKind::Slider) { SendMessageW(native, TBM_SETRANGE, TRUE, MAKELPARAM(minimum, maximum)); SendMessageW(native, TBM_SETPOS, TRUE, minimum); }
             else { SendMessageW(native, PBM_SETRANGE32, minimum, maximum); SendMessageW(native, PBM_SETPOS, minimum, 0); }
         }
@@ -441,12 +441,12 @@ namespace ezwindow {
         HWND hwnd = CreateWindowExW(0, kWindowClass, wideTitle.c_str(), WS_OVERLAPPEDWINDOW,
             CW_USEDEFAULT, CW_USEDEFAULT, std::max(200, width), std::max(200, height),
             nullptr, nullptr, g_instance, reinterpret_cast<void*>(static_cast<INT_PTR>(id)));
-        if (!hwnd) throw std::runtime_error("EzWindow：创建原生窗口失败。");
+        if (!hwnd) throw std::runtime_error("EasyWindow：创建原生窗口失败。");
         g_windows.emplace(id, hwnd);
         if (!iconPath.empty()) {
             const auto iconFile = toWide(iconPath);
             HICON icon = static_cast<HICON>(LoadImageW(nullptr, iconFile.c_str(), IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE));
-            if (!icon) { DestroyWindow(hwnd); g_windows.erase(id); throw std::runtime_error("EzWindow：无法从文件加载窗口图标：" + iconPath); }
+            if (!icon) { DestroyWindow(hwnd); g_windows.erase(id); throw std::runtime_error("EasyWindow：无法从文件加载窗口图标：" + iconPath); }
             g_windowIcons.emplace(id, icon);
             SendMessageW(hwnd, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(icon));
             SendMessageW(hwnd, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(icon));
@@ -515,9 +515,9 @@ namespace ezwindow {
         if (!g_webviewComInitialized) {
             const HRESULT comResult = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
             if (FAILED(comResult) && comResult != RPC_E_CHANGED_MODE)
-                throw std::runtime_error("EzWindow：无法初始化 COM，WebView2 不能启动。");
+                throw std::runtime_error("EasyWindow：无法初始化 COM，WebView2 不能启动。");
             if (comResult == RPC_E_CHANGED_MODE)
-                throw std::runtime_error("EzWindow：WebView2 需要 STA COM 线程；当前线程已使用不同的 COM apartment。");
+                throw std::runtime_error("EasyWindow：WebView2 需要 STA COM 线程；当前线程已使用不同的 COM apartment。");
             g_webviewComInitialized = true;
         }
         const int id = addControl(windowId, {}, ControlKind::WebView);
@@ -529,7 +529,7 @@ namespace ezwindow {
             Microsoft::WRL::Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
                 [id](HRESULT result, ICoreWebView2Environment* environment) -> HRESULT {
                     if (FAILED(result) || !environment) {
-                        MessageBoxW(nullptr, L"WebView2 环境初始化失败。请确认系统受支持并安装了 Microsoft Edge WebView2 Runtime。", L"EzWindow WebView2", MB_OK | MB_ICONERROR);
+                        MessageBoxW(nullptr, L"WebView2 环境初始化失败。请确认系统受支持并安装了 Microsoft Edge WebView2 Runtime。", L"EasyWindow WebView2", MB_OK | MB_ICONERROR);
                         return FAILED(result) ? result : E_FAIL;
                     }
                     const auto control = g_controls.find(id);
@@ -542,7 +542,7 @@ namespace ezwindow {
                                 const auto controlIt = g_controls.find(id);
                                 if (state == g_webviews.end() || controlIt == g_controls.end()) return E_ABORT;
                                 if (FAILED(controllerResult) || !controller) {
-                                    MessageBoxW(controlIt->second.owner, L"无法创建 WebView2 控件。请检查系统版本、Runtime 与 SDK 配置。", L"EzWindow WebView2", MB_OK | MB_ICONERROR);
+                                    MessageBoxW(controlIt->second.owner, L"无法创建 WebView2 控件。请检查系统版本、Runtime 与 SDK 配置。", L"EasyWindow WebView2", MB_OK | MB_ICONERROR);
                                     return FAILED(controllerResult) ? controllerResult : E_FAIL;
                                 }
                                 state->second.controller = controller;
@@ -557,7 +557,7 @@ namespace ezwindow {
                 }).Get());
         if (FAILED(hr)) {
             g_webviews.erase(id);
-            throw std::runtime_error("EzWindow：启动 WebView2 失败。请确认已安装 WebView2 SDK 并链接 WebView2LoaderStatic.lib。");
+            throw std::runtime_error("EasyWindow：启动 WebView2 失败。请确认已安装 WebView2 SDK 并链接 WebView2LoaderStatic.lib。");
         }
         return id;
 #else
@@ -643,7 +643,7 @@ namespace ezwindow {
         c.change = std::move(callback);
     }
     void mainLoop() {
-        if (g_windows.empty()) throw std::runtime_error("尚未创建 EzWindow 窗口。");
+        if (g_windows.empty()) throw std::runtime_error("尚未创建 EasyWindow 窗口。");
         for (const auto& pair : g_windows) if (pair.second && IsWindow(pair.second)) { ShowWindow(pair.second, SW_SHOWNORMAL); UpdateWindow(pair.second); }
         MSG msg{};
         while (GetMessageW(&msg, nullptr, 0, 0) > 0) { TranslateMessage(&msg); DispatchMessageW(&msg); }
@@ -662,7 +662,7 @@ namespace ezwindow {
     }
 #elif !defined(__APPLE__) && !defined(__linux__)
     [[noreturn]] static void unavailable() {
-        throw std::runtime_error("此平台的 EzWindow 原生后端尚未实现；当前版本在 Windows 上使用 Win32 原生控件，且不需要第三方 GUI 依赖。");
+        throw std::runtime_error("此平台的 EasyWindow 原生后端尚未实现；当前版本在 Windows 上使用 Win32 原生控件，且不需要第三方 GUI 依赖。");
     }
     bool available() noexcept { return false; }
     int createWindow(const std::string&, int, int, const std::string&) { unavailable(); }
@@ -1874,13 +1874,13 @@ namespace nimple {
                 // A .nbf is a declaration/header unit and need not define an app entry.
             } else if (windowIt != program.methods.end()) {
                 if (!windowIt->second.params.empty() || windowIt->second.paramsUnknown) error(windowIt->second.line, "NB-T1003", "EasyWindow 入口 Window 必须明确声明为无参数方法；请使用 (void) 或省略参数列表。");
-                if (windowIt->second.returnType != "void") error(windowIt->second.line, "NB-T1004", "EzWindow 入口 Window 必须返回 void。");
+                if (windowIt->second.returnType != "void") error(windowIt->second.line, "NB-T1004", "EasyWindow 入口 Window 必须返回 void。");
             } else if (mainIt != program.methods.end()) {
                 if (!mainIt->second.params.empty() || mainIt->second.paramsUnknown) error(mainIt->second.line, "NB-T1003", "入口方法 Main 必须明确声明为无参数方法；请使用 (void) 或省略参数列表。");
                 if (mainIt->second.returnType != "int" && mainIt->second.returnType != "void")
                     error(mainIt->second.line, "NB-T1004", "入口方法 Main 必须返回 int 或 void。");
             } else {
-                error(1, "NB-T1002", "找不到入口方法 Main；EzWindow 程序可以改用 void Window。");
+                error(1, "NB-T1002", "找不到入口方法 Main；EasyWindow 程序可以改用 void Window。");
             }
 
             for (const auto& entry : program.methods) {
@@ -2101,7 +2101,7 @@ namespace nimple {
                 argTypes.reserve(expr.args.size());
                 for (const auto& arg : expr.args) argTypes.push_back(checkExpression(*arg));
                 if (expr.text == "ezWindowMissingInstance") {
-                    error(expr.line, "NB-EZ1003", "EzWindow：未指定窗口。必须在 void Window 中声明 var new (auto)Name = EzWindow.Window。");
+                    error(expr.line, "NB-EZ1003", "EasyWindow：未指定窗口。必须在 void Window 中声明 var new (auto)Name = EasyWindow.Window。");
                     return "void";
                 }
                 if (expr.text == "typeof") {
@@ -2126,9 +2126,9 @@ namespace nimple {
                     error(expr.line, "NB-T1024", "read 的参数必须是字面量类型名称，例如 read(int) 或 read(\"string\")。");
                     return "any";
                 }
-                if (expr.text == "ezWindowInvalidLayout") { throw NimpleError("NB-EZ1002", expr.line, 1, "EzWindow：布局尺寸必须大于 0，且百分比边距不能占满整个方向。"); }
+                if (expr.text == "ezWindowInvalidLayout") { throw NimpleError("NB-EZ1002", expr.line, 1, "EasyWindow：布局尺寸必须大于 0，且百分比边距不能占满整个方向。"); }
                 if (expr.text == "ezWindowInvalidStyleExtension")
-                    error(expr.line, "NB-EZ1010", "EzWindow Style 文件必须使用 .css 后缀。" );
+                    error(expr.line, "NB-EZ1010", "EasyWindow Style 文件必须使用 .css 后缀。" );
                 if (const auto builtin = ezWindowBuiltinSignature(expr.text)) {
                     if (argTypes.size() != builtin->parameters.size()) {
                         error(expr.line, "NB-T1026", "内置函数 " + expr.text + " 需要 " + std::to_string(builtin->parameters.size()) + " 个参数，实际收到 " + std::to_string(argTypes.size()) + " 个。");
@@ -2148,15 +2148,15 @@ namespace nimple {
                         const std::string callbackName = dataGet<std::string>(expr.args[callbackIndex]->literal.data);
                         auto callback = program.methods.find(callbackName);
                         if (callback == program.methods.end()) {
-                            error(expr.line, "NB-T1051", "EzWindow 事件回调方法未声明：“" + callbackName + "”。");
+                            error(expr.line, "NB-T1051", "EasyWindow 事件回调方法未声明：“" + callbackName + "”。");
                         } else {
                             const std::size_t requiredParams = expr.text == "onClick" ? 0u : 1u;
                             if (callback->second.params.size() != requiredParams)
-                                error(expr.line, "NB-T1052", "EzWindow 的 " + expr.text + " 回调“" + callbackName + "”必须接收 " + std::to_string(requiredParams) + " 个参数。");
+                                error(expr.line, "NB-T1052", "EasyWindow 的 " + expr.text + " 回调“" + callbackName + "”必须接收 " + std::to_string(requiredParams) + " 个参数。");
                             else if (expr.text == "onChange" && callback->second.params[0].type != "string")
                                 error(expr.line, "NB-T1053", "onChange 回调的唯一参数必须是 string。");
                             if (callback->second.returnType != "void")
-                                error(expr.line, "NB-T1054", "EzWindow 事件回调方法必须返回 void。");
+                                error(expr.line, "NB-T1054", "EasyWindow 事件回调方法必须返回 void。");
                         }
                     }
                 }
@@ -2429,7 +2429,7 @@ namespace nimple {
             auto it = useWindow ? windowIt : program.methods.find("Main");
             if (it == program.methods.end()) throw NimpleError("NB-R1011", 1, 1, "找不到入口方法 Main 或 void Window。");
             if (!it->second.params.empty()) throw NimpleError("NB-R1012", it->second.line, 1, "入口方法必须为无参数方法。");
-            if (useWindow && it->second.returnType != "void") throw NimpleError("NB-R1013", it->second.line, 1, "EzWindow 入口 Window 必须返回 void。");
+            if (useWindow && it->second.returnType != "void") throw NimpleError("NB-R1013", it->second.line, 1, "EasyWindow 入口 Window 必须返回 void。");
             Value result = call(useWindow ? "Window" : "Main", {}, it->second.line);
             if (useWindow || result.type == ValueType::Void || result.type == ValueType::NoThing) return 0;
             if (result.type == ValueType::Int) return dataGet<int32_t>(result.data) & 0xFF;
@@ -2458,21 +2458,21 @@ namespace nimple {
             if (ezWindowBuiltinSignature(name)) {
                 const auto fail = [&](const std::string& message) -> void { throw NimpleError("NB-EZ1001", line, 1, message); };
                 const auto requireCount = [&](std::size_t count) {
-                    if (args.size() != count) fail("EzWindow 内置函数 " + name + " 参数数量错误：需要 " + std::to_string(count) + "，实际 " + std::to_string(args.size()) + "。");
+                    if (args.size() != count) fail("EasyWindow 内置函数 " + name + " 参数数量错误：需要 " + std::to_string(count) + "，实际 " + std::to_string(args.size()) + "。");
                 };
                 const auto intArg = [&](std::size_t i) -> int {
-                    if (i >= args.size() || args[i].type != ValueType::Int) fail("EzWindow 内置函数 " + name + " 的参数必须为 int。");
+                    if (i >= args.size() || args[i].type != ValueType::Int) fail("EasyWindow 内置函数 " + name + " 的参数必须为 int。");
                     return dataGet<int32_t>(args[i].data);
                 };
                 const auto stringArg = [&](std::size_t i) -> std::string {
-                    if (i >= args.size() || args[i].type != ValueType::String) fail("EzWindow 内置函数 " + name + " 的参数必须为 string。");
+                    if (i >= args.size() || args[i].type != ValueType::String) fail("EasyWindow 内置函数 " + name + " 的参数必须为 string。");
                     return dataGet<std::string>(args[i].data);
                 };
                 const auto boolArg = [&](std::size_t i) -> bool {
-                    if (i >= args.size() || args[i].type != ValueType::Bool) fail("EzWindow 内置函数 " + name + " 的参数必须为 bool。");
+                    if (i >= args.size() || args[i].type != ValueType::Bool) fail("EasyWindow 内置函数 " + name + " 的参数必须为 bool。");
                     return dataGet<bool>(args[i].data);
                 };
-                if (!ezwindow::available()) fail("当前平台没有可用的 EzWindow 图形后端或桌面运行环境。请检查该平台的系统 GUI 运行环境和 README.md。");
+                if (!ezwindow::available()) fail("当前平台没有可用的 EasyWindow 图形后端或桌面运行环境。请检查该平台的系统 GUI 运行环境和 README.md。");
                 try {
                     if (name == "ezWindowCreate") {
                         requireCount(4);
@@ -2510,7 +2510,7 @@ namespace nimple {
                         requireCount(2); const int widgetId = intArg(0); const std::string callbackName = stringArg(1);
                         ezwindow::setOnClick(widgetId, [this, callbackName, line]() {
                             try { (void)this->call(callbackName, {}, line); }
-                            catch (const NimpleError& e) { DiagnosticEngine::emit(sourceFile, e.line, e.column, DiagnosticSeverity::Error, e.code, std::string("EzWindow callback: ") + e.what()); }
+                            catch (const NimpleError& e) { DiagnosticEngine::emit(sourceFile, e.line, e.column, DiagnosticSeverity::Error, e.code, std::string("EasyWindow callback: ") + e.what()); }
                             catch (const std::exception& e) { DiagnosticEngine::emit(sourceFile, line, 1, DiagnosticSeverity::Error, "NB-EZ1099", e.what()); }
                         });
                         return Value::voidValue();
@@ -2519,7 +2519,7 @@ namespace nimple {
                         requireCount(2); const int widgetId = intArg(0); const std::string callbackName = stringArg(1);
                         ezwindow::setOnChange(widgetId, [this, callbackName, line](const std::string& text) {
                             try { (void)this->call(callbackName, { Value::string(text) }, line); }
-                            catch (const NimpleError& e) { DiagnosticEngine::emit(sourceFile, e.line, e.column, DiagnosticSeverity::Error, e.code, std::string("EzWindow callback: ") + e.what()); }
+                            catch (const NimpleError& e) { DiagnosticEngine::emit(sourceFile, e.line, e.column, DiagnosticSeverity::Error, e.code, std::string("EasyWindow callback: ") + e.what()); }
                             catch (const std::exception& e) { DiagnosticEngine::emit(sourceFile, line, 1, DiagnosticSeverity::Error, "NB-EZ1099", e.what()); }
                         });
                         return Value::voidValue();
@@ -2528,11 +2528,11 @@ namespace nimple {
                     if (name == "ezWindowQuit") { requireCount(0); ezwindow::quit(); return Value::voidValue(); }
                     if (name == "ezWindowMessage") { requireCount(2); ezwindow::message(stringArg(0), stringArg(1)); return Value::voidValue(); }
                     if (name == "ezWindowPack") { requireCount(1); (void)intArg(0); return Value::voidValue(); }
-                    if (name == "ezWindowInvalidLayout") { requireCount(0); fail("EzWindow 布局尺寸必须大于 0，且百分比边距不能占满整个方向。"); }
-                    if (name == "ezWindowInvalidStyleExtension") { requireCount(1); fail("EzWindow Style 文件必须使用 .css 后缀。"); }
+                    if (name == "ezWindowInvalidLayout") { requireCount(0); fail("EasyWindow 布局尺寸必须大于 0，且百分比边距不能占满整个方向。"); }
+                    if (name == "ezWindowInvalidStyleExtension") { requireCount(1); fail("EasyWindow Style 文件必须使用 .css 后缀。"); }
                 } catch (const NimpleError&) { throw; }
                 catch (const std::exception& e) { throw NimpleError("NB-EZ1002", line, 1, e.what()); }
-                fail("未实现的 EzWindow 内置函数：“" + name + "”。");
+                fail("未实现的 EasyWindow 内置函数：“" + name + "”。");
             }
             auto it = program.methods.find(name);
             if (it == program.methods.end()) throw NimpleError("NB-R1021", line, 1, "找不到方法：" + name);
@@ -3038,33 +3038,33 @@ namespace nimple {
         return hasCode;
     }
 
-    // EzWindow's compact declarative surface. These lines are syntax sugar over
+    // EasyWindow's compact declarative surface. These lines are syntax sugar over
     // the same checked standard-library API, so both --check and execution agree.
-    static std::string transformEzWindowSyntax(const std::string& source) {
-        const bool declarativeEzWindow = source.find("__NIMPLE_EZWINDOW_DSL__") != std::string::npos;
+    static std::string transformEasyWindowSyntax(const std::string& source) {
+        const bool declarativeEasyWindow = source.find("__NIMPLE_EZWINDOW_DSL__") != std::string::npos;
         std::istringstream input(source); std::ostringstream output; std::string line;
-        const std::regex windowStart(R"(^\s*void\s+Window\s*:\s*(?://.*)?$)");
-        const std::regex instancePattern(R"(^\s*var\s+new\s+\(auto\)([A-Za-z_][A-Za-z0-9_]*)\s*=\s*EzWindow\.Window\s*(?://.*)?$)");
+        const std::regex windowStart(R"(^\s*void\s+Window\s*\(\s*void\s*\)\s*\{\s*(?://.*)?$)");
+        const std::regex instancePattern(R"(^\s*var\s+new\s+\(auto\)([A-Za-z_][A-Za-z0-9_]*)\s*=\s*EasyWindow\.Window\s*(?://.*)?$)");
         const std::regex titlePattern(R"(^\s*[A-Za-z_][A-Za-z0-9_]*\.Title\s*=\s*("(?:\\.|[^"\\])*")\s*(?://.*)?$)");
         const std::regex iconPattern(R"(^\s*[A-Za-z_][A-Za-z0-9_]*\.Icon\s*=\s*("(?:\\.|[^"\\])*")\s*(?://.*)?$)");
         const std::regex geometryPattern(R"REGEX(^\s*[A-Za-z_][A-Za-z0-9_]*\.Geometry\(\s*"([0-9]+)x([0-9]+)"\s*\)\s*(?://.*)?$)REGEX");
-        const std::regex controlStart(R"(^\s*void\s+([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(?://.*)?$)");
+        const std::regex controlStart(R"(^\s*void\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*void\s*\)\s*\{\s*(?://.*)?$)");
         const std::regex locationPattern(R"(^\s*loction\(\s*(%|px)\s*,\s*([0-9]+(?:\.[0-9]+)?)\s*,\s*([0-9]+(?:\.[0-9]+)?)\s*,\s*([0-9]+(?:\.[0-9]+)?)\s*,\s*([0-9]+(?:\.[0-9]+)?)\s*\)\s*(?://.*)?$)");
         const std::regex sizePattern(R"(^\s*size\(\s*px\s*,\s*([0-9]+(?:\.[0-9]+)?)\s*,\s*([0-9]+(?:\.[0-9]+)?)\s*\)\s*(?://.*)?$)");
-        const std::regex controlInstancePattern(R"(^\s*var\s+new\s+\(auto\)([A-Za-z_][A-Za-z0-9_]*)\s*=\s*EzWindow\.([A-Za-z_][A-Za-z0-9_]*)\s*(?://.*)?$)");
+        const std::regex controlInstancePattern(R"(^\s*var\s+new\s+\(auto\)([A-Za-z_][A-Za-z0-9_]*)\s*=\s*EasyWindow\.([A-Za-z_][A-Za-z0-9_]*)\s*(?://.*)?$)");
         const std::regex oldWindow(R"(^\s*window\s+("(?:\\.|[^"\\])*")(?:\s+(\d+)\s+(\d+))?\s+as\s+([A-Za-z_][A-Za-z0-9_]*)\s*;?\s*$)");
         const std::regex oldControl(R"(^\s*(label|button|entry|textBox|checkBox)\s+([A-Za-z_][A-Za-z0-9_]*)\s+("(?:\\.|[^"\\])*")\s+as\s+([A-Za-z_][A-Za-z0-9_]*)\s*;?\s*$)");
         const std::regex eventPattern(R"(^\s*on\s+([A-Za-z_][A-Za-z0-9_]*)\s+(click|change)\s+([A-Za-z_][A-Za-z0-9_]*)\s*;?\s*$)");
         const std::regex simplePattern(R"(^\s*(show|run|pack)(?:\s+([A-Za-z_][A-Za-z0-9_]*))?\s*;?\s*$)");
         struct ControlDecl { std::string name; std::string kind; std::vector<std::string> body; bool instantiated{false}; bool firstStatement{true}; std::array<std::string,4> edges{{"0","0","0","0"}}; bool hasLocation{false}; bool locationPercent{true}; bool hasSize{false}; int sizeLength{0}; int sizeWidth{0}; };
         bool inWindow=false, inControls=false, inControl=false, hasInstance=false, hasWindowDeclaration=false;
-        std::string windowName="Window", title="\"EzWindow Application\"", icon="\"\"", style;
+        std::string windowName="Window", title="\"EasyWindow Application\"", icon="\"\"", style;
         int width=400, height=300; std::vector<ControlDecl> controls; ControlDecl current;
         std::vector<std::string> windowBody;
         std::ostringstream generatedWindow;
         auto emitWindow = [&]() {
-            generatedWindow << "void Window:\n";
-            if (!hasInstance) { generatedWindow << "    ezWindowMissingInstance()\n    return\nend\n"; return; }
+            generatedWindow << "void Window(void) {\n";
+            if (!hasInstance) { generatedWindow << "    ezWindowMissingInstance()\n    return\n}\n"; return; }
             generatedWindow << "    var new (auto)" << windowName << " = window(" << title << ", " << width << ", " << height << ", " << icon << ")\n";
             for (const auto& c : controls) {
                 if (!c.instantiated) continue;
@@ -3100,11 +3100,11 @@ namespace nimple {
                 for (const auto& bodyLine : c.body) generatedWindow << "    " << bodyLine << '\n';
             }
             for (const auto& bodyLine : windowBody) generatedWindow << "    " << bodyLine << '\n';
-            generatedWindow << "    show(" << windowName << ")\n    mainloop()\n    return\nend\n";
+            generatedWindow << "    show(" << windowName << ")\n    mainloop()\n    return\n}\n";
         };
         while (std::getline(input,line)) {
             std::smatch m; const std::string t=trim(line);
-            if (declarativeEzWindow && !inWindow && !inControls && std::regex_match(line,windowStart)) { inWindow=true; hasInstance=false; title="\"EzWindow Application\""; icon="\"\""; style.clear(); width=400; height=300; controls.clear(); windowBody.clear(); continue; }
+            if (declarativeEasyWindow && !inWindow && !inControls && std::regex_match(line,windowStart)) { inWindow=true; hasInstance=false; title="\"EasyWindow Application\""; icon="\"\""; style.clear(); width=400; height=300; controls.clear(); windowBody.clear(); continue; }
             if (inWindow) {
                 if (std::regex_match(line,m,instancePattern)) { windowName=m[1].str(); hasInstance=true; continue; }
                 if (std::regex_match(line,m,titlePattern)) { title=m[1].str(); continue; }
@@ -3118,11 +3118,11 @@ namespace nimple {
                         windowBody.push_back("ezWindowInvalidStyleExtension(" + style + ")");
                     continue;
                 }
-                if (t=="end") { inWindow=false; hasWindowDeclaration=true; continue; }
+                if (t=="}") { inWindow=false; hasWindowDeclaration=true; continue; }
                 if (!t.empty() && t.rfind("//",0)!=0) windowBody.push_back(t);
                 continue;
             }
-            if (declarativeEzWindow && !inControls && t=="module Controls :") { inControls=true; continue; }
+            if (declarativeEasyWindow && !inControls && t=="module Controls {") { inControls=true; continue; }
             if (inControls && !inControl && std::regex_match(line,m,controlStart)) {
                 current=ControlDecl{}; current.name=m[1].str();
                 static const std::unordered_map<std::string,std::string> controlKinds = {
@@ -3158,11 +3158,11 @@ namespace nimple {
                 }
                 if (std::regex_match(line,m,locationPattern)) { current.firstStatement=false; current.locationPercent=(m[1].str()=="%"); current.edges={{m[2].str(),m[3].str(),m[4].str(),m[5].str()}}; current.hasLocation=true; continue; }
                 if (std::regex_match(line,m,sizePattern)) { current.firstStatement=false; current.sizeLength=static_cast<int>(std::lround(std::stod(m[1].str()))); current.sizeWidth=static_cast<int>(std::lround(std::stod(m[2].str()))); current.hasSize=true; continue; }
-                if (t=="end") { controls.push_back(current); inControl=false; continue; }
+                if (t=="}") { controls.push_back(current); inControl=false; continue; }
                 if (!t.empty() && t.rfind("//",0)!=0) { current.firstStatement=false; current.body.push_back(t); }
                 continue;
             }
-            if (inControls && !inControl && t=="end") { inControls=false; continue; }
+            if (inControls && !inControl && t=="}") { inControls=false; continue; }
             if (std::regex_match(line,m,oldWindow)) {
                 const std::string w=m[4].str(); output << "var new " << w << " = window(" << m[1].str() << ", " << (m[2].matched?m[2].str():"200") << ", " << (m[3].matched?m[3].str():"200") << ")";
             } else if (std::regex_match(line,m,oldControl)) output << "var new " << m[4].str() << " = " << m[1].str() << "(" << m[2].str() << ", " << m[3].str() << ")";
@@ -3172,7 +3172,7 @@ namespace nimple {
             if (!input.eof()) output << '\n';
         }
         // If the declaration is malformed, leave a tiny invalid program for the
-        // EzWindow-specific validator rather than silently creating a window.
+        // EasyWindow-specific validator rather than silently creating a window.
         if (inWindow) output << "__NIMPLE_EZWINDOW_UNCLOSED__\n";
         // Controls are allowed to be declared after void Window. Defer emitting
         // the generated runtime body until the entire DSL has been scanned, so
@@ -3323,7 +3323,7 @@ namespace nimple {
                         else {
                             const fs::path modulePath = standardLibraryDirectory() / fs::u8path(moduleName);
                             std::string expanded = preprocessSource(*moduleSource, modulePath, includeStack, diagnostics, depth + 1);
-                            if (moduleName == "EzWindow") output << "/*__NIMPLE_EZWINDOW_DSL__*/\n";
+                            if (moduleName == "EasyWindow") output << "/*__NIMPLE_EZWINDOW_DSL__*/\n";
                             output << expanded;
                             if (!expanded.empty() && expanded.back() != '\n') output << '\n';
                         }
@@ -3379,9 +3379,9 @@ namespace nimple {
                         if (headerSource.size() >= 3 && static_cast<unsigned char>(headerSource[0]) == 0xEF &&
                             static_cast<unsigned char>(headerSource[1]) == 0xBB && static_cast<unsigned char>(headerSource[2]) == 0xBF)
                             headerSource.erase(0, 3);
-                        static const std::regex openingPattern(R"((^|\n)\s*(public\s+|private\s+|protected\s+)?[A-Za-z_][A-Za-z0-9_]*\s+opening(\s+with\b[^\n]*)?\s*:)" );
-                        if (!std::regex_search(headerSource, openingPattern)) {
-                            DiagnosticEngine::emit(std::string(), lineNumber, 1, DiagnosticSeverity::Warning, "NB-W2101", "首文件“" + moduleName + "”没有 opening 函数；将隐式执行 copy。");
+                        static const std::regex includingPattern(R"((^|\n)\s*(public\s+|private\s+|protected\s+)?[A-Za-z_][A-Za-z0-9_]*\s+including\s*(?:\([^)]*\))?\s*\{)");
+                        if (!std::regex_search(headerSource, includingPattern)) {
+                            DiagnosticEngine::emit(std::string(), lineNumber, 1, DiagnosticSeverity::Warning, "NB-W2101", "首文件“" + moduleName + "”没有 including 函数；将隐式执行 copy。");
                         }
                         std::string expanded = preprocessSource(headerSource, *headerPath, includeStack, diagnostics, depth + 1);
                         output << expanded;
@@ -3497,7 +3497,7 @@ static int checkSource(const fs::path& inputPath, std::string source) {
         std::vector<NimpleError> diagnostics;
         std::vector<fs::path> includeStack;
         source = preprocessSource(source, filePath, includeStack, diagnostics);
-        source = transformEzWindowSyntax(source);
+        source = transformEasyWindowSyntax(source);
         validateAdjacentTail(filePath, diagnostics);
         if (diagnostics.empty() && !sourceHasExecutableCode(source)) return 0;
         Lexer lexer(source, source.find("__NIMPLE_SUPPRESS_CLASS__") != std::string::npos);
@@ -3566,7 +3566,7 @@ static int runFile(const fs::path& inputPath) {
         std::vector<NimpleError> diagnostics;
         std::vector<fs::path> includeStack;
         source = preprocessSource(source, filePath, includeStack, diagnostics);
-        source = transformEzWindowSyntax(source);
+        source = transformEasyWindowSyntax(source);
         validateAdjacentTail(filePath, diagnostics);
         if (diagnostics.empty() && !sourceHasExecutableCode(source)) return 0;
         Lexer lexer(source, source.find("__NIMPLE_SUPPRESS_CLASS__") != std::string::npos);
@@ -3616,7 +3616,7 @@ static int runInteractiveSubmission(const std::string& input, const std::string&
         std::vector<NimpleError> diagnostics;
         std::vector<fs::path> includeStack;
         std::string source = preprocessSource(preamble + input, contextPath, includeStack, diagnostics);
-        source = transformEzWindowSyntax(source);
+        source = transformEasyWindowSyntax(source);
         if (!diagnostics.empty()) return printDiagnostics(contextPath, std::move(diagnostics));
         if (!sourceHasExecutableCode(source)) return 0;
         Lexer lexer(source, source.find("__NIMPLE_SUPPRESS_CLASS__") != std::string::npos);

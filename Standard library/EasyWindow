@@ -1,0 +1,147 @@
+int window(string title = "EasyWindow Application", int width = 200, int height = 200, string icon = "") {
+    return ezWindowCreate(title, width, height, icon)
+}
+
+int label(int windowId, string text) {
+    return ezWindowLabel(windowId, text)
+}
+
+int button(int windowId, string text) {
+    return ezWindowButton(windowId, text)
+}
+
+int entry(int windowId, string placeholder) {
+    return ezWindowEntry(windowId, placeholder)
+}
+
+int textBox(int windowId, string initialText) {
+    return ezWindowTextBox(windowId, initialText)
+}
+
+int checkBox(int windowId, string text) {
+    return ezWindowCheckBox(windowId, text)
+}
+
+int passwordEntry(int windowId, string placeholder) {
+    return ezWindowPasswordEntry(windowId, placeholder)
+}
+
+/* Options are separated by newline characters. */
+int comboBox(int windowId, string items) {
+    return ezWindowComboBox(windowId, items)
+}
+
+int radioButton(int windowId, string text) {
+    return ezWindowRadioButton(windowId, text)
+}
+
+int slider(int windowId, int minimum, int maximum) {
+    return ezWindowSlider(windowId, minimum, maximum)
+}
+
+int progressBar(int windowId, int minimum, int maximum) {
+    return ezWindowProgressBar(windowId, minimum, maximum)
+}
+
+/* WebView2 is Windows-only, optional at build time, and requires a supported Windows version + Runtime. */
+int webView(int windowId, string url) {
+    return ezWindowWebView(windowId, url)
+}
+
+void webViewNavigate(int widgetId, string url) {
+    ezWindowWebViewNavigate(widgetId, url)
+    return
+}
+
+void webViewSetHtml(int widgetId, string html) {
+    ezWindowWebViewSetHtml(widgetId, html)
+    return
+}
+
+void setValue(int widgetId, int value) {
+    ezWindowSetValue(widgetId, value)
+    return
+}
+
+int getValue(int widgetId) {
+    return ezWindowGetValue(widgetId)
+}
+
+void setText(int widgetId, string text) {
+    ezWindowSetText(widgetId, text)
+    return
+}
+
+string getText(int widgetId) {
+    return ezWindowGetText(widgetId)
+}
+
+void setChecked(int widgetId, bool checked) {
+    ezWindowSetChecked(widgetId, checked)
+    return
+}
+
+bool getChecked(int widgetId) {
+    return ezWindowGetChecked(widgetId)
+}
+
+void setTitle(int windowId, string title) {
+    ezWindowSetTitle(windowId, title)
+    return
+}
+
+void show(int windowId) {
+    ezWindowShow(windowId)
+    return
+}
+
+void setPosition(int widgetId, int x, int y) {
+    ezWindowSetPosition(widgetId, x, y)
+    return
+}
+
+void setSize(int widgetId, int width, int height) {
+    ezWindowSetSize(widgetId, width, height)
+    return
+}
+
+void setBounds(int widgetId, int x, int y, int width, int height) {
+    ezWindowSetBounds(widgetId, x, y, width, height)
+    return
+}
+
+void setRelativeBounds(int widgetId, int xPercent, int yPercent, int widthPercent, int heightPercent) {
+    ezWindowSetRelativeBounds(widgetId, xPercent, yPercent, widthPercent, heightPercent)
+    return
+}
+
+void pack(int widgetId) {
+    ezWindowPack(widgetId)
+    return
+}
+
+void onClick(int widgetId, string callbackName) {
+    ezWindowOnClick(widgetId, callbackName)
+    return
+}
+
+void onChange(int widgetId, string callbackName) {
+    ezWindowOnChange(widgetId, callbackName)
+    return
+}
+
+void mainloop(void) {
+    ezWindowMainLoop()
+    return
+}
+
+void quit(void) {
+    ezWindowQuit()
+    return
+}
+
+void messageBox(string title, string text) {
+    ezWindowMessage(title, text)
+    return
+}
+
