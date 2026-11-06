@@ -1608,6 +1608,8 @@ namespace nimple {
                     const bool elseBrace = matchText("{");
                     if (!elseBrace && !matchText("then")) fail(peek(), "NB2001", "else if 条件后需要 { 或 then。");
                     const bool elseSingle = !elseBrace && !check(Token::Kind::Newline);
+                    if (braceBlock && !elseBrace && !elseSingle)
+                        fail(peek(), "NB2001", "大括号代码块中的 else if 也必须使用大括号或单行 then。");
                     if (elseBrace) {
                         skipSeparators();
                         s->branchBodies.push_back(parseBlock({ "else", "}" }));
@@ -1627,6 +1629,8 @@ namespace nimple {
                     if (!elseBrace && !hasElseThen && !check(Token::Kind::Newline))
                         fail(peek(), "NB2001", "else 后需要 {、then 或换行。");
                     const bool elseSingle = hasElseThen && !check(Token::Kind::Newline);
+                    if (braceBlock && !elseBrace && !elseSingle)
+                        fail(peek(), "NB2001", "大括号代码块中的 else 必须使用大括号或单行 then。");
                     if (elseBrace) {
                         skipSeparators();
                         s->elseBody = parseBlock({ "}" });
