@@ -1873,10 +1873,10 @@ namespace nimple {
             if (!requireEntryPoint) {
                 // A .nbf is a declaration/header unit and need not define an app entry.
             } else if (windowIt != program.methods.end()) {
-                if (!windowIt->second.params.empty()) error(windowIt->second.line, "NB-T1003", "EzWindow 入口 Window 必须为无参数方法。");
+                if (!windowIt->second.params.empty() || windowIt->second.paramsUnknown) error(windowIt->second.line, "NB-T1003", "EasyWindow 入口 Window 必须明确声明为无参数方法；请使用 (void) 或省略参数列表。");
                 if (windowIt->second.returnType != "void") error(windowIt->second.line, "NB-T1004", "EzWindow 入口 Window 必须返回 void。");
             } else if (mainIt != program.methods.end()) {
-                if (!mainIt->second.params.empty()) error(mainIt->second.line, "NB-T1003", "入口方法 Main 必须为无参数方法。");
+                if (!mainIt->second.params.empty() || mainIt->second.paramsUnknown) error(mainIt->second.line, "NB-T1003", "入口方法 Main 必须明确声明为无参数方法；请使用 (void) 或省略参数列表。");
                 if (mainIt->second.returnType != "int" && mainIt->second.returnType != "void")
                     error(mainIt->second.line, "NB-T1004", "入口方法 Main 必须返回 int 或 void。");
             } else {
