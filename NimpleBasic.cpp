@@ -3418,6 +3418,7 @@ namespace nimple {
                     } else {
                         const fs::path modulePath = standardLibraryDirectory() / fs::u8path(moduleName);
                         std::string expanded = preprocessSource(*moduleSource, modulePath, includeStack, diagnostics, depth + 1);
+                        if (moduleName == "EasyWindow") output << "/*__NIMPLE_EZWINDOW_DSL__*/\n";
                         output << expanded;
                         if (!expanded.empty() && expanded.back() != '\n') output << '\n';
                     }
