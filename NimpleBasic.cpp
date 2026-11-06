@@ -1904,7 +1904,7 @@ namespace nimple {
                 }
                 const bool canReachEnd = checkBlock(method.body, false);
                 const bool isIncludingHook = method.name == "including" ||
-                    (method.name.size() > 10 && method.name.compare(method.name.size() - 10, 10, "::including") == 0);
+                    (method.name.size() > 11 && method.name.compare(method.name.size() - 11, 11, "::including") == 0);
                 if (method.returnType != "void" && canReachEnd && !isIncludingHook)
                     error(method.line, "NB-T1006", "非 void 方法 " + method.name + " 存在未返回值的执行路径。");
                 currentMethod = nullptr;
