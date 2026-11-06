@@ -1,6 +1,6 @@
-int headerValue:
+int headerValue(void) {
     return 10
-end
-void opening:
+}
+void including(void) {
     return
-end
+}

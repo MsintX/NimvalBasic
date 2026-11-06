@@ -1,5 +1,5 @@
-int opening:
-end
-int importedValue:
+int including(void) {
+}
+int importedValue(void) {
     return 3
-end
+}
