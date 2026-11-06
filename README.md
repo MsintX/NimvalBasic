@@ -1,12 +1,16 @@
-# Nimple Basic 0.1.0
+# Nimval Basic 0.1.0
 
-Nimple Basic 是一个基于 C++14 兼容层的原生解释器。执行程序前会完成预处理、词法分析、语法分析和整程序静态类型检查；发现错误时不会先执行程序副作用。
+Nimval Basic 是一个基于 C++14 兼容层的原生解释器。执行程序前会完成预处理、词法分析、语法分析和整程序静态类型检查；发现错误时不会先执行程序副作用。
+
+## 新版统一语法
+
+新版语法采用 1TBS 大括号代码块、括号参数列表和 `include` 导入关键词。EasyWindow 无参数 API 使用 `(void)`，首文件入口使用 `including`。详见[新版语法说明](docs/NimvalBasic-Syntax.md)。旧语法目前保留兼容，新的代码请优先使用新版语法。
 
 ## 文件类型
 
 - `.nb`：普通源文件。
 - `.nbf`：首文件（头文件）。可以由 `statement "path/to/file.nbf"` 引入；首文件也可以单独执行 `--check`，不要求定义程序入口。
-- `.nbt`：尾文件（项目配置/提示）。与 `.nb` 同名的 `.nbt` 会在检查或运行时自动校验。当前版本只校验 key/value 结构，不会自动把配置应用到 EzWindow。
+- `.nbt`：尾文件（项目配置/提示）。与 `.nb` 同名的 `.nbt` 会在检查或运行时自动校验。当前版本只校验 key/value 结构，不会自动把配置应用到 EasyWindow。
 
 ## 构建
 
@@ -18,7 +22,7 @@ ctest --test-dir build --output-on-failure
 
 Windows 也可以用 Visual Studio 2015 Update 3 打开 `NimpleBasic.sln`（v140，Windows 8.1 SDK），或在 VS2015 Developer Command Prompt 中运行 `build-vs2015.bat`。核心解释器使用项目内的 `Compat14.h`，不依赖 `<filesystem>`、`<optional>` 或 `<variant>`。解释器会从自身可执行文件旁边的 `Standard library` 目录加载标准库，因此发布时需要把整个目录与 `nb.exe` 一起分发。
 
-VS2015 构建建议使用 Release|x64。项目默认不启用 WebView2；普通 Win32 EzWindow 控件不需要额外依赖。
+VS2015 构建建议使用 Release|x64。项目默认不启用 WebView2；普通 Win32 EasyWindow 控件不需要额外依赖。
 
 ## 运行与静态检查
 
@@ -89,8 +93,8 @@ end
 
 ```nb
 statement "iosystem"
-const sys::read
-const sys::print
+include sys::read
+include sys::print
 int Main:
     print "Hello" -> System
     var new age = read(int) as int
@@ -106,7 +110,7 @@ end
 statement "headers/Utilities.nbf"
 ```
 
-支持的预处理指令为 `replace`、`copy`、`suppress`、`const` 和 `statement`，不再使用 `$` 前缀。`statement "模块名"` 引进模块；标准库文件内部的 `statement sys::name` 则声明原生语句定义。旧的 `introduce` 关键词已移除。打开 `.nbf` 时，解释器会检查其中是否存在任意返回类型的 `opening` 方法声明。如果存在，按首文件导入处理；如果不存在，会发出 `NB-W2101` 警告，并按隐式 `copy` 展开。`copy` 与 `statement` 仅应对可信源码使用。
+支持的预处理指令为 `replace`、`copy`、`suppress`、`const` 和 `statement`，不再使用 `$` 前缀。`statement "模块名"` 引进模块；标准库文件内部的 `statement sys::name` 则声明原生语句定义。旧的 `introduce` 关键词已移除。打开 `.nbf` 时，解释器会检查其中是否存在任意返回类型的 `including` 方法声明。如果存在，按首文件导入处理；如果不存在，会发出 `NB-W2101` 警告，并按隐式 `copy` 展开。`copy` 与 `statement` 仅应对可信源码使用。
 
 ## 尾文件
 
@@ -122,17 +126,17 @@ prompt = "Project notes"
 
 当前版本校验字符串、布尔值、数字、重复键，以及 `width`/`height` 的正整数约束。尾文件暂不参与运行时窗口配置，图标字段目前只是可保存的项目元数据。
 
-## EzWindow
+## EasyWindow
 
-EzWindow 使用现有原生控件后端。应用入口可以使用 `void Window:`，不再要求另写 `Main`；`Window` 必须无参数且返回 `void`。普通命令行程序仍使用 `int Main` 或 `void Main`。
+EasyWindow 使用现有原生控件后端。应用入口可以使用 `void Window:`，不再要求另写 `Main`；`Window` 必须无参数且返回 `void`。普通命令行程序仍使用 `int Main` 或 `void Main`。
 
-窗口函数支持默认参数：标题默认为 `EzWindow Application`，尺寸默认为 200×200；也可以显式传入标题和尺寸：
+窗口函数支持默认参数：标题默认为 `EasyWindow Application`，尺寸默认为 200×200；也可以显式传入标题和尺寸：
 
 ```nb
-statement "EzWindow"
+statement "EasyWindow"
 
 window "Hello, Nimple" 520 320 as root
-label root "Hello, Nimple Basic" as greeting
+label root "Hello, Nimval Basic" as greeting
 entry root "Your name" as name
 button root "Say hello" as submit
 
@@ -146,7 +150,7 @@ void Window:
 end
 ```
 
-EzWindow 还提供声明式语法糖：`window "标题" [宽 高] as 名称` 创建窗口；`label/button/entry/textBox/checkBox 窗口 "文本或提示" as 名称` 创建控件；`on 控件 click|change 方法` 绑定事件；`show 窗口` 显示窗口，`run` 进入事件循环。控件仍可使用原有完整 API 进行属性、布局和高级操作。
+EasyWindow 还提供声明式语法糖：`window "标题" [宽 高] as 名称` 创建窗口；`label/button/entry/textBox/checkBox 窗口 "文本或提示" as 名称` 创建控件；`on 控件 click|change 方法` 绑定事件；`show 窗口` 显示窗口，`run` 进入事件循环。控件仍可使用原有完整 API 进行属性、布局和高级操作。
 
 或 `window("Custom title", 640, 480)`。当前仍采用显式控件 ID/父窗口参数，控件 API 与 Python Tkinter 的基本控件概念相近，但尚未实现完整 Tkinter 式布局 DSL。窗口函数的第 4 个可选参数可以指定图标路径，例如 `window("App", 640, 480, "assets/app.ico")`；相对图标路径以 `.nb` 源文件所在目录为基准。Windows 使用 `.ico`，Linux 使用 GTK 支持的图像格式，macOS 将图像设为应用图标。`.nbt` 的 `icon` 字段目前只做元数据保存，不会自动覆盖代码中显式传入的图标。
 
@@ -160,7 +164,7 @@ Windows 10/11 使用系统安装的 Evergreen Runtime。Windows 7/8/8.1 使用�
 
 ## 测试
 
-当前 CTest 套件包含 71 项测试，覆盖原有类型检查和 EzWindow API，以及空文件/纯注释文件、EzWindow 声明式语法、`module` 限定调用、全局作用域、`sys::` 导入、原生语句定义与 `const` 分离、标准库模块作用域隔离、`.nbf` opening/回退、`class` 弃用警告抑制、`Window` 入口、窗口默认参数和 `.nbt` 校验。
+当前 CTest 套件包含 71 项测试，覆盖原有类型检查和 EasyWindow API，以及空文件/纯注释文件、EasyWindow 声明式语法、`module` 限定调用、全局作用域、`sys::` 导入、原生语句定义与 `const` 分离、标准库模块作用域隔离、`.nbf` including/回退、`class` 弃用警告抑制、`Window` 入口、窗口默认参数和 `.nbt` 校验。
 
 GUI 窗口本身尚未在本次 Linux 构建环境中进行人工桌面冒烟测试；Windows/macOS 也需要在目标系统实际运行确认。
 
@@ -169,17 +173,17 @@ GUI 窗口本身尚未在本次 Linux 构建环境中进行人工桌面冒烟测
 `Standard library/input`、`Standard library/output` 和 `Standard library/iosystem` 使用 `statement sys::...` 声明注册原生语句定义。实际解析与执行由解释器内置实现提供；标准库不创建包装函数。`const` 不参与定义，只控制是否省略 `sys::` 前缀。
 
 
-## EzWindow declarative syntax
+## EasyWindow declarative syntax
 
-The declarative EzWindow surface is enabled with `const <EzWindow>`. It supports a required `void Window` entry block, optional title/icon/geometry/style settings, and a `module Controls` block. The required `var new (auto)Name = EzWindow.Window` declaration creates the window instance. The default title is `EzWindow Application`; the default geometry is `400x300`; omitted style follows the operating-system theme. Style resource paths use the `.css` extension. Each control declaration must explicitly instantiate its widget as the first statement, for example `var new (auto)RunButton = EzWindow.Button`; declarations without this line do not create a widget. EzWindow creates and places instantiated controls automatically; `.pack()` is not required. `const <Module>` imports a standard-library module (including a first file in the standard-library directory), while `const "path"` imports a file by path relative to the current source file. CSS file parsing and native visual-property application are not yet implemented; the `.css` suffix is validated, but setting `Window.Style` does not yet apply CSS rules.
+The declarative EasyWindow surface is enabled with `include <EasyWindow>`. It supports a required `void Window` entry block, optional title/icon/geometry/style settings, and a `module Controls` block. The required `var new (auto)Name = EasyWindow.Window` declaration creates the window instance. The default title is `EasyWindow Application`; the default geometry is `400x300`; omitted style follows the operating-system theme. Style resource paths use the `.css` extension. Each control declaration must explicitly instantiate its widget as the first statement, for example `var new (auto)RunButton = EasyWindow.Button`; declarations without this line do not create a widget. EasyWindow creates and places instantiated controls automatically; `.pack()` is not required. `include <Module>` imports a standard-library module (including a first file in the standard-library directory), while `const "path"` imports a file by path relative to the current source file. CSS file parsing and native visual-property application are not yet implemented; the `.css` suffix is validated, but setting `Window.Style` does not yet apply CSS rules.
 
-Each `void ControlName:` block declares one native control. Recognized names include `Button`, `Label`, `Entry`, `TextBox`, `CheckBox`, `PasswordEntry`, `ComboBox`, `RadioButton`, `Slider`, `ProgressBar`, and `WebView`; names may carry a suffix such as `Button1` or `LabelStatus`. Control logic is emitted after its instance has been created, so it can use the ordinary EzWindow API and bind callbacks. `loction(distance, top, bottom, left, right)` sets the four edge offsets; `distance` is `%` or `px`, and all four offsets use that unit. `%` is relative to the initial window dimensions; `px` is an absolute pixel distance. `size(px, length, width)` optionally sets the explicit pixel dimensions, where `length` is horizontal width and `width` is vertical height. When `size` is omitted, the remaining area between the opposing edges determines the control size. `PasswordEntry` masks input with `*`.
+Each `void ControlName:` block declares one native control. Recognized names include `Button`, `Label`, `Entry`, `TextBox`, `CheckBox`, `PasswordEntry`, `ComboBox`, `RadioButton`, `Slider`, `ProgressBar`, and `WebView`; names may carry a suffix such as `Button1` or `LabelStatus`. Control logic is emitted after its instance has been created, so it can use the ordinary EasyWindow API and bind callbacks. `loction(distance, top, bottom, left, right)` sets the four edge offsets; `distance` is `%` or `px`, and all four offsets use that unit. `%` is relative to the initial window dimensions; `px` is an absolute pixel distance. `size(px, length, width)` optionally sets the explicit pixel dimensions, where `length` is horizontal width and `width` is vertical height. When `size` is omitted, the remaining area between the opposing edges determines the control size. `PasswordEntry` masks input with `*`.
 
 ```nimple
-const <EzWindow>
+include <EasyWindow>
 
 void Window :
-    var new (auto)Window = EzWindow.Window
+    var new (auto)Window = EasyWindow.Window
     Window.Title = "Title"
     Window.Geometry("300x300")
 end
