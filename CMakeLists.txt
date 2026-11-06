@@ -32,24 +32,24 @@ if(WIN32)
         target_compile_definitions(nimple-basic PRIVATE NIMPLE_ENABLE_WEBVIEW2=1)
         target_include_directories(nimple-basic PRIVATE "${WEBVIEW2_SDK_DIR}/include")
         target_link_libraries(nimple-basic PRIVATE "${WEBVIEW2_LOADER_STATIC_LIBRARY}" ole32 shlwapi)
-        message(STATUS "Nimple EzWindow: WebView2 enabled for ${_webview2_arch}; Windows 8.1 is not supported by WebView2 Runtime")
+        message(STATUS "Nimple EasyWindow: WebView2 enabled for ${_webview2_arch}; Windows 8.1 is not supported by WebView2 Runtime")
     else()
-        message(STATUS "Nimple EzWindow: Win32 native backend enabled; WebView2 is optional and disabled")
+        message(STATUS "Nimple EasyWindow: Win32 native backend enabled; WebView2 is optional and disabled")
     endif()
-    message(STATUS "Nimple EzWindow: Windows visual styles are enabled")
+    message(STATUS "Nimple EasyWindow: Windows visual styles are enabled")
 elseif(APPLE)
     enable_language(OBJCXX)
-    target_sources(nimple-basic PRIVATE EzWindowMac.mm)
+    target_sources(nimple-basic PRIVATE EasyWindowMac.mm)
     target_link_libraries(nimple-basic PRIVATE "-framework Cocoa")
     set_property(TARGET nimple-basic PROPERTY OBJCXX_STANDARD 14)
     set_property(TARGET nimple-basic PROPERTY OBJCXX_STANDARD_REQUIRED ON)
-    message(STATUS "Nimple EzWindow: native Cocoa/AppKit backend enabled")
+    message(STATUS "Nimple EasyWindow: native Cocoa/AppKit backend enabled")
 elseif(UNIX)
-    target_sources(nimple-basic PRIVATE EzWindowLinux.cpp)
+    target_sources(nimple-basic PRIVATE EasyWindowLinux.cpp)
     target_link_libraries(nimple-basic PRIVATE ${CMAKE_DL_LIBS})
-    message(STATUS "Nimple EzWindow: GTK native-widget backend enabled via runtime loading (no GTK development dependency)")
+    message(STATUS "Nimple EasyWindow: GTK native-widget backend enabled via runtime loading (no GTK development dependency)")
 else()
-    message(FATAL_ERROR "EzWindow has no backend for this operating system")
+    message(FATAL_ERROR "EasyWindow has no backend for this operating system")
 endif()
 
 if(MSVC AND NOT MSVC_VERSION LESS 1900)
@@ -86,19 +86,19 @@ if(BUILD_TESTING)
     add_test(NAME typecheck-valid
         COMMAND $<TARGET_FILE:nimple-basic> --check "${CMAKE_CURRENT_SOURCE_DIR}/tests/check-valid.nb")
     add_test(NAME ezwindow-example-typecheck
-        COMMAND $<TARGET_FILE:nimple-basic> --check "${CMAKE_CURRENT_SOURCE_DIR}/examples/EzWindowHello.nb")
+        COMMAND $<TARGET_FILE:nimple-basic> --check "${CMAKE_CURRENT_SOURCE_DIR}/examples/EasyWindowHello.nb")
     add_test(NAME ezwindow-module-from-standard-library-folder
         COMMAND $<TARGET_FILE:nimple-basic> --check "${CMAKE_CURRENT_SOURCE_DIR}/tests/check-ezwindow-builtin.nb")
     add_test(NAME ezwindow-relative-layout-api
         COMMAND $<TARGET_FILE:nimple-basic> --check "${CMAKE_CURRENT_SOURCE_DIR}/tests/check-ezwindow-relative-layout.nb")
     add_test(NAME ezwindow-relative-layout-example
-        COMMAND $<TARGET_FILE:nimple-basic> --check "${CMAKE_CURRENT_SOURCE_DIR}/examples/EzWindowRelativeLayout.nb")
+        COMMAND $<TARGET_FILE:nimple-basic> --check "${CMAKE_CURRENT_SOURCE_DIR}/examples/EasyWindowRelativeLayout.nb")
     add_test(NAME ezwindow-extended-controls-api
         COMMAND $<TARGET_FILE:nimple-basic> --check "${CMAKE_CURRENT_SOURCE_DIR}/tests/check-ezwindow-extended-controls.nb")
     add_test(NAME ezwindow-extended-controls-example
-        COMMAND $<TARGET_FILE:nimple-basic> --check "${CMAKE_CURRENT_SOURCE_DIR}/examples/EzWindowExtendedControls.nb")
+        COMMAND $<TARGET_FILE:nimple-basic> --check "${CMAKE_CURRENT_SOURCE_DIR}/examples/EasyWindowExtendedControls.nb")
     add_test(NAME ezwindow-webview2-example-api
-        COMMAND $<TARGET_FILE:nimple-basic> --check "${CMAKE_CURRENT_SOURCE_DIR}/examples/EzWindowWebView2.nb")
+        COMMAND $<TARGET_FILE:nimple-basic> --check "${CMAKE_CURRENT_SOURCE_DIR}/examples/EasyWindowWebView2.nb")
     add_test(NAME ezwindow-layout-rejects-wrong-types
         COMMAND $<TARGET_FILE:nimple-basic> --check "${CMAKE_CURRENT_SOURCE_DIR}/tests/check-ezwindow-bad-layout-type.nb")
     add_test(NAME math-module-from-standard-library-folder
@@ -275,7 +275,7 @@ if(BUILD_TESTING)
         COMMAND ${CMAKE_COMMAND}
             -DPROGRAM=$<TARGET_FILE:nimple-basic>
             -DSOURCE=${CMAKE_CURRENT_SOURCE_DIR}/tests/check-ezwindow-missing-instance.nb
-            "-DEXPECTED=EzWindow：未指定窗口。必须在 void Window 中声明"
+            "-DEXPECTED=EasyWindow：未指定窗口。必须在 void Window 中声明"
             -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/assert-diagnostic.cmake)
 endif()
 
@@ -290,7 +290,7 @@ if(BUILD_TESTING)
         COMMAND ${CMAKE_COMMAND}
             -DPROGRAM=$<TARGET_FILE:nimple-basic>
             -DSOURCE=${CMAKE_CURRENT_SOURCE_DIR}/tests/check-ezwindow-style-extension.nb
-            "-DEXPECTED=error NB-EZ1010: EzWindow Style 文件必须使用 .css 后缀。"
+            "-DEXPECTED=error NB-EZ1010: EasyWindow Style 文件必须使用 .css 后缀。"
             -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/assert-diagnostic.cmake)
 endif()
 

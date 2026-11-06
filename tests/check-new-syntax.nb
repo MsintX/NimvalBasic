@@ -14,6 +14,11 @@ void UnknownParameters() {
 
 int Main(void) {
     var new result = MathOps::Add(20, 22)
-    if result == 42 then return result - 42
-    return 1
+    UnknownParameters(1, 2)
+    NoParameters()
+    if result == 42 {
+        return result - 42
+    } else {
+        return 1
+    }
 }
