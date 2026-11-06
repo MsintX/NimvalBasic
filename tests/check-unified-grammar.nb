@@ -1,0 +1,11 @@
+module MathOps {
+    int Add(int left, int right) {
+        return left + right
+    }
+}
+
+int Main(void) {
+    var new value = MathOps::Add(20, 22)
+    if value == 42 then return 0
+    return 1
+}

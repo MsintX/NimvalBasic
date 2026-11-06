@@ -85,6 +85,8 @@ include(CTest)
 if(BUILD_TESTING)
     add_test(NAME typecheck-valid
         COMMAND $<TARGET_FILE:nimple-basic> --check "${CMAKE_CURRENT_SOURCE_DIR}/tests/check-valid.nb")
+    add_test(NAME unified-brace-and-inline-then-syntax
+        COMMAND $<TARGET_FILE:nimple-basic> --check "${CMAKE_CURRENT_SOURCE_DIR}/tests/check-unified-grammar.nb")
     add_test(NAME ezwindow-example-typecheck
         COMMAND $<TARGET_FILE:nimple-basic> --check "${CMAKE_CURRENT_SOURCE_DIR}/examples/EasyWindowHello.nb")
     add_test(NAME ezwindow-module-from-standard-library-folder
