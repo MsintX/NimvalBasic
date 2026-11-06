@@ -1591,6 +1591,7 @@ namespace nimple {
             if (braceBlock) {
                 skipSeparators();
                 s->branchBodies.push_back(parseBlock({ "else", "}" }));
+                expectText("}", "if 代码块缺少右大括号。");
             } else if (singleLine) {
                 std::vector<std::unique_ptr<Stmt>> body;
                 body.push_back(parseStatement());
@@ -1622,11 +1623,10 @@ namespace nimple {
                 } else {
                     s->hasElse = true;
                     const bool elseBrace = matchText("{");
-                    if (!elseBrace && !matchText("then")) {
-                        if (!braceBlock) fail(peek(), "NB2001", "else 后需要 { 或 then。");
-                        fail(peek(), "NB2001", "else 后需要 {。");
-                    }
-                    const bool elseSingle = !elseBrace && !check(Token::Kind::Newline);
+                    const bool hasElseThen = !elseBrace && matchText("then");
+                    if (!elseBrace && !hasElseThen && !check(Token::Kind::Newline))
+                        fail(peek(), "NB2001", "else 后需要 {、then 或换行。");
+                    const bool elseSingle = hasElseThen && !check(Token::Kind::Newline);
                     if (elseBrace) {
                         skipSeparators();
                         s->elseBody = parseBlock({ "}" });
@@ -1640,8 +1640,7 @@ namespace nimple {
                     break;
                 }
             }
-            if (braceBlock) expectText("}", "if 代码块缺少右大括号。");
-            else if (!singleLine) expectText("end", "if 代码块缺少 end。");
+            if (!braceBlock && !singleLine) expectText("end", "if 代码块缺少 end。");
             return s;
         }
         std::unique_ptr<Stmt> parseFor() {
