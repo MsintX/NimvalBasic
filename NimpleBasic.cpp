@@ -3405,9 +3405,10 @@ namespace nimple {
                     }
                 }
                 else if (moduleName == "System") {
-                    diagnostics.emplace_back("NB3003", lineNumber, 1, "System 已改为内置命名空间 sys；请使用 sys::name 或 const namespace sys。");
+                    diagnostics.emplace_back("NB3003", lineNumber, 1, "System 已改为内置命名空间 sys；请使用 sys::name 或 include namespace sys。");
                 }
                 else {
+                    if (moduleName == "EzWindow") moduleName = "EasyWindow";
                     // Standard library files are resolved relative to the running
                     // interpreter executable, never the current working directory.
                     auto moduleSource = readStandardLibraryModule(moduleName);
